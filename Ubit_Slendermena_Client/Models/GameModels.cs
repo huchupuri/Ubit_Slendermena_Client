@@ -17,13 +17,13 @@ public class Question
 
 public class Player
 {
-    private string _passwordHash;
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public required string Username { get; set; }
+    public Guid Id { get; set; }
+    public string Username { get; set; } = string.Empty;
     public int TotalGames { get; set; } = 0;
     public int Score { get; set; } = 0;
     public int CurrentScore { get; set; } = 0;
     public int Wins { get; set; } = 0;
+    public double WinRate => TotalGames > 0 ? (double)Wins / TotalGames * 100 : 0;
 }
 
 public class ServerMessage

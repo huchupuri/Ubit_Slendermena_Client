@@ -34,6 +34,7 @@ namespace Ubit_Slendermena_Client
             textBox2 = new TextBox();
             AuthorizationLabel = new Label();
             button1 = new Button();
+            btnAddRoom = new RoundButton();
             SuspendLayout();
             // 
             // AuthorizationTxt
@@ -59,11 +60,32 @@ namespace Ubit_Slendermena_Client
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
+            // btnAddRoom
+            // 
+            btnAddRoom.BackColor = Color.FromArgb(60, 60, 100);
+            btnAddRoom.BorderColor = Color.Transparent;
+            btnAddRoom.BorderRadius = 15;
+            btnAddRoom.FlatStyle = FlatStyle.Flat;
+            btnAddRoom.Font = new Font("Microsoft Sans Serif", 12F);
+            btnAddRoom.ForeColor = Color.FromArgb(243, 200, 220);
+            btnAddRoom.HoverColor = Color.FromArgb(213, 140, 176);
+            btnAddRoom.Location = new Point(12, 256);
+            btnAddRoom.Margin = new Padding(4, 3, 4, 3);
+            btnAddRoom.MinimumSize = new Size(100, 46);
+            btnAddRoom.Name = "btnAddRoom";
+            btnAddRoom.PressColor = Color.FromArgb(132, 49, 90);
+            btnAddRoom.PressDepth = 0.15F;
+            btnAddRoom.Size = new Size(117, 46);
+            btnAddRoom.TabIndex = 7;
+            btnAddRoom.Text = "добавить\nкомнату";
+            btnAddRoom.UseVisualStyleBackColor = false;
+            // 
             // AuthorizationForm
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(button1);
+            Controls.Add(btnAddRoom);
             Controls.Add(AuthorizationLabel);
             Controls.Add(textBox2);
             Controls.Add(AuthorizationTxt);
@@ -80,5 +102,6 @@ namespace Ubit_Slendermena_Client
         private TextBox textBox2;
         private Label AuthorizationLabel;
         private Button button1;
+        private RoundButton btnAddRoom;
     }
 }

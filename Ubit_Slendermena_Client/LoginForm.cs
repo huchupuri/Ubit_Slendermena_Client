@@ -39,103 +39,106 @@ public partial class ConnectionForm : Form
 
     private void InitializeComponent()
     {
-        this.Text = "Подключение к игре 'Своя игра'";
-        this.Size = new Size(500, 450);
-        this.StartPosition = FormStartPosition.CenterScreen;
-        this.FormBorderStyle = FormBorderStyle.FixedDialog;
-        this.MaximizeBox = false;
-        this.BackColor = Color.WhiteSmoke;
-
-        // Заголовок
-        var lblTitle = new Label
-        {
-            Text = "🎮 Своя игра",
-            Location = new Point(20, 15),
-            Size = new Size(460, 35),
-            Font = new Font("Arial", 18, FontStyle.Bold),
-            TextAlign = ContentAlignment.MiddleCenter,
-            ForeColor = Color.DarkBlue
-        };
-
-        // Настройки сервера
-        var grpServer = new GroupBox
-        {
-            Text = "Настройки сервера",
-            Location = new Point(20, 60),
-            Size = new Size(460, 80),
-            Font = new Font("Arial", 9, FontStyle.Bold)
-        };
-
-        var lblServerAddress = new Label
-        {
-            Text = "Адрес сервера:",
-            Location = new Point(15, 25),
-            Size = new Size(100, 20)
-        };
-
-        txtServerAddress = new TextBox
-        {
-            Text = "localhost",
-            Location = new Point(120, 23),
-            Size = new Size(150, 23)
-        };
-
-        var lblPort = new Label
-        {
-            Text = "Порт:",
-            Location = new Point(290, 25),
-            Size = new Size(40, 20)
-        };
-
-        txtPort = new TextBox
-        {
-            Text = "5000",
-            Location = new Point(335, 23),
-            Size = new Size(80, 23)
-        };
-
-        grpServer.Controls.AddRange(new Control[] { lblServerAddress, txtServerAddress, lblPort, txtPort });
-
-        // Вкладки для входа/регистрации
-        tabControl = new TabControl
-        {
-            Location = new Point(20, 150),
-            Size = new Size(460, 220),
-            Font = new Font("Arial", 9)
-        };
-
-        CreateLoginTab();
-        CreateRegisterTab();
-
-        tabControl.TabPages.Add(tabLogin);
-        tabControl.TabPages.Add(tabRegister);
-
-        // Кнопка подключения
-        btnConnect = new Button
-        {
-            Text = "Подключиться",
-            Location = new Point(200, 385),
-            Size = new Size(120, 35),
-            BackColor = Color.LightGreen,
-            Font = new Font("Arial", 10, FontStyle.Bold),
-            FlatStyle = FlatStyle.Flat
-        };
+        lblTitle = new Label();
+        grpServer = new GroupBox();
+        lblServerAddress = new Label();
+        txtServerAddress = new TextBox();
+        lblPort = new Label();
+        txtPort = new TextBox();
+        tabControl = new TabControl();
+        btnConnect = new Button();
+        lblStatus = new Label();
+        grpServer.SuspendLayout();
+        SuspendLayout();
+        // 
+        // lblTitle
+        // 
+        lblTitle.Location = new Point(0, 0);
+        lblTitle.Name = "lblTitle";
+        lblTitle.Size = new Size(100, 23);
+        lblTitle.TabIndex = 0;
+        // 
+        // grpServer
+        // 
+        grpServer.Controls.Add(lblServerAddress);
+        grpServer.Controls.Add(txtServerAddress);
+        grpServer.Controls.Add(lblPort);
+        grpServer.Controls.Add(txtPort);
+        grpServer.Location = new Point(0, 0);
+        grpServer.Name = "grpServer";
+        grpServer.Size = new Size(200, 100);
+        grpServer.TabIndex = 1;
+        grpServer.TabStop = false;
+        // 
+        // lblServerAddress
+        // 
+        lblServerAddress.Location = new Point(0, 0);
+        lblServerAddress.Name = "lblServerAddress";
+        lblServerAddress.Size = new Size(100, 23);
+        lblServerAddress.TabIndex = 0;
+        // 
+        // txtServerAddress
+        // 
+        txtServerAddress.Location = new Point(0, 0);
+        txtServerAddress.Name = "txtServerAddress";
+        txtServerAddress.Size = new Size(100, 27);
+        txtServerAddress.TabIndex = 1;
+        // 
+        // lblPort
+        // 
+        lblPort.Location = new Point(0, 0);
+        lblPort.Name = "lblPort";
+        lblPort.Size = new Size(100, 23);
+        lblPort.TabIndex = 2;
+        // 
+        // txtPort
+        // 
+        txtPort.Location = new Point(0, 0);
+        txtPort.Name = "txtPort";
+        txtPort.Size = new Size(100, 27);
+        txtPort.TabIndex = 3;
+        // 
+        // tabControl
+        // 
+        tabControl.Location = new Point(0, 0);
+        tabControl.Name = "tabControl";
+        tabControl.SelectedIndex = 0;
+        tabControl.Size = new Size(200, 100);
+        tabControl.TabIndex = 2;
+        // 
+        // btnConnect
+        // 
         btnConnect.FlatAppearance.BorderColor = Color.Green;
+        btnConnect.Location = new Point(0, 0);
+        btnConnect.Name = "btnConnect";
+        btnConnect.Size = new Size(75, 23);
+        btnConnect.TabIndex = 3;
         btnConnect.Click += BtnConnect_Click;
-
-        // Статус
-        lblStatus = new Label
-        {
-            Text = "Готов к подключению",
-            Location = new Point(20, 430),
-            Size = new Size(460, 20),
-            TextAlign = ContentAlignment.MiddleCenter,
-            ForeColor = Color.Gray,
-            Font = new Font("Arial", 9)
-        };
-
-        // Добавление всех элементов на форму
-        this.Controls.AddRange(new Control[] { lblTitle, grpServer, tabControl, btnConnect, lblStatus });
+        // 
+        // lblStatus
+        // 
+        lblStatus.Location = new Point(0, 0);
+        lblStatus.Name = "lblStatus";
+        lblStatus.Size = new Size(100, 23);
+        lblStatus.TabIndex = 4;
+        // 
+        // ConnectionForm
+        // 
+        BackColor = Color.WhiteSmoke;
+        ClientSize = new Size(482, 403);
+        Controls.Add(lblTitle);
+        Controls.Add(grpServer);
+        Controls.Add(tabControl);
+        Controls.Add(btnConnect);
+        Controls.Add(lblStatus);
+        FormBorderStyle = FormBorderStyle.FixedDialog;
+        MaximizeBox = false;
+        Name = "ConnectionForm";
+        StartPosition = FormStartPosition.CenterScreen;
+        Text = "Подключение к игре 'Своя игра'";
+        grpServer.ResumeLayout(false);
+        grpServer.PerformLayout();
+        ResumeLayout(false);
     }
 
     private void CreateLoginTab()
@@ -400,43 +403,50 @@ public partial class ConnectionForm : Form
             Invoke(new Action<ServerMessage>(OnServerMessage), message);
             return;
         }
-        ShowError("Пароли не совпадают");
         switch (message.Type)
         {
             case "LoginSuccess":
-                ShowError("Пароли не совпадают");
-                HandleSuccessfulAuth(message.Player!, "Вход выполнен успешно!");
+                ShowError(message.Username);
+
+                HandleSuccessfulAuth(message, "Вход выполнен успешно!");
                 break;
 
             case "RegisterSuccess":
-                HandleSuccessfulAuth(message.Player!, "Регистрация выполнена успешно!");
+                HandleSuccessfulAuth(message!, "Регистрация выполнена успешно!");
                 break;
 
             case "LoginFailed":
-                ShowError($"Ошибка входа: {message.Message}");
+                ShowError($"Ошибка входа: {message}");
                 break;
 
             case "RegisterFailed":
-                ShowError($"Ошибка регистрации: {message.Message}");
+                ShowError($"Ошибка регистрации: {message}");
                 break;
         }
     }
 
-    private void HandleSuccessfulAuth(Player player, string successMessage)
+    private void HandleSuccessfulAuth(ServerMessage message, string successMessage)
     {
         lblStatus.Text = successMessage;
         lblStatus.ForeColor = Color.Green;
 
         // Показываем информацию о игроке
-        string playerInfo = $"Добро пожаловать, {player.Username}!\n" +
-                           $"Игр сыграно: {player.TotalGames}\n" +
-                           $"Побед: {player.Wins}\n" +
-                           $"Процент побед: {player.WinRate:F1}%\n" +
-                           $"Общий счет: {player.Score}";
+        string playerInfo = $"Добро пожаловать, {message.Username}!\n" +
+                           $"Игр сыграно: {message.TotalGames}\n" +
+                           $"Побед: {message.Wins}\n" +
+                           $"Общий счет: {message.TotalScore}";
 
         MessageBox.Show(playerInfo, "Успешная аутентификация", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         // Открываем игровую форму
+        var player = new Player()
+        {
+            Id = message.Id,
+            Username = message.Username,
+            TotalGames = message.TotalGames,
+            Score = message.TotalScore,
+            Wins = message.Wins
+        };
         var gameForm = new JeopardyForm(_client!, player);
         this.Hide();
         gameForm.ShowDialog();
@@ -459,4 +469,9 @@ public partial class ConnectionForm : Form
         _client?.Disconnect();
         base.OnFormClosing(e);
     }
+
+    private Label lblTitle;
+    private GroupBox grpServer;
+    private Label lblServerAddress;
+    private Label lblPort;
 }

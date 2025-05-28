@@ -41,4 +41,7 @@ public class ServerMessage
     public string CorrectAnswer { get; set; } = string.Empty;
     public int NewScore { get; set; }
     public Player? Winner { get; set; }
+    public int TotalGames { get; set; }
+    public int Wins { get; set; }
+    public int TotalScore { get; set; }
 }

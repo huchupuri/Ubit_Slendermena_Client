@@ -53,47 +53,47 @@ public partial class ConnectionForm : Form
         // 
         // lblTitle
         // 
-        lblTitle.Location = new Point(0, 0);
+        lblTitle.Location = new Point(45, 73);
         lblTitle.Name = "lblTitle";
         lblTitle.Size = new Size(100, 23);
         lblTitle.TabIndex = 0;
         // 
         // grpServer
         // 
+        grpServer.Controls.Add(lblTitle);
         grpServer.Controls.Add(lblServerAddress);
         grpServer.Controls.Add(txtServerAddress);
-        grpServer.Controls.Add(lblPort);
         grpServer.Controls.Add(txtPort);
         grpServer.Location = new Point(0, 0);
         grpServer.Name = "grpServer";
-        grpServer.Size = new Size(200, 100);
+        grpServer.Size = new Size(470, 301);
         grpServer.TabIndex = 1;
         grpServer.TabStop = false;
         // 
         // lblServerAddress
         // 
-        lblServerAddress.Location = new Point(0, 0);
+        lblServerAddress.Location = new Point(206, 62);
         lblServerAddress.Name = "lblServerAddress";
         lblServerAddress.Size = new Size(100, 23);
         lblServerAddress.TabIndex = 0;
         // 
         // txtServerAddress
         // 
-        txtServerAddress.Location = new Point(0, 0);
+        txtServerAddress.Location = new Point(12, 124);
         txtServerAddress.Name = "txtServerAddress";
         txtServerAddress.Size = new Size(100, 27);
         txtServerAddress.TabIndex = 1;
         // 
         // lblPort
         // 
-        lblPort.Location = new Point(0, 0);
+        lblPort.Location = new Point(123, 346);
         lblPort.Name = "lblPort";
         lblPort.Size = new Size(100, 23);
         lblPort.TabIndex = 2;
         // 
         // txtPort
         // 
-        txtPort.Location = new Point(0, 0);
+        txtPort.Location = new Point(276, 153);
         txtPort.Name = "txtPort";
         txtPort.Size = new Size(100, 27);
         txtPort.TabIndex = 3;
@@ -126,10 +126,10 @@ public partial class ConnectionForm : Form
         // 
         BackColor = Color.WhiteSmoke;
         ClientSize = new Size(482, 403);
-        Controls.Add(lblTitle);
         Controls.Add(grpServer);
         Controls.Add(tabControl);
         Controls.Add(btnConnect);
+        Controls.Add(lblPort);
         Controls.Add(lblStatus);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;

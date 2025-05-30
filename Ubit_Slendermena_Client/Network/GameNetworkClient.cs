@@ -78,7 +78,7 @@ public class GameNetworkClient
 
                 string json = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                 var message = JsonSerializer.Deserialize<ServerMessage>(json);
-
+                MessageBox.Show(message.Type, "Успешная аутентификацияuu", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 if (message != null)
                 {
                     MessageReceived?.Invoke(message);

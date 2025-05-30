@@ -31,9 +31,9 @@ namespace Ubit_Slendermena_Client
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AuthorizationForm));
             AuthorizationTxt = new TextBox();
-            textBox2 = new TextBox();
+            PassswordTxt = new TextBox();
             AuthorizationLabel = new Label();
-            button1 = new Button();
+            btnConnect = new Button();
             btnAddRoom = new RoundButton();
             SuspendLayout();
             // 
@@ -42,10 +42,10 @@ namespace Ubit_Slendermena_Client
             resources.ApplyResources(AuthorizationTxt, "AuthorizationTxt");
             AuthorizationTxt.Name = "AuthorizationTxt";
             // 
-            // textBox2
+            // PassswordTxt
             // 
-            resources.ApplyResources(textBox2, "textBox2");
-            textBox2.Name = "textBox2";
+            resources.ApplyResources(PassswordTxt, "PassswordTxt");
+            PassswordTxt.Name = "PassswordTxt";
             // 
             // AuthorizationLabel
             // 
@@ -53,41 +53,35 @@ namespace Ubit_Slendermena_Client
             AuthorizationLabel.BackColor = Color.Transparent;
             AuthorizationLabel.Name = "AuthorizationLabel";
             // 
-            // button1
+            // btnConnect
             // 
-            resources.ApplyResources(button1, "button1");
-            button1.Name = "button1";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            resources.ApplyResources(btnConnect, "btnConnect");
+            btnConnect.Name = "btnConnect";
+            btnConnect.UseVisualStyleBackColor = true;
+            btnConnect.Click += BtnConnect_Click;
             // 
             // btnAddRoom
             // 
+            resources.ApplyResources(btnAddRoom, "btnAddRoom");
             btnAddRoom.BackColor = Color.FromArgb(60, 60, 100);
             btnAddRoom.BorderColor = Color.Transparent;
             btnAddRoom.BorderRadius = 15;
-            btnAddRoom.FlatStyle = FlatStyle.Flat;
-            btnAddRoom.Font = new Font("Microsoft Sans Serif", 12F);
             btnAddRoom.ForeColor = Color.FromArgb(243, 200, 220);
             btnAddRoom.HoverColor = Color.FromArgb(213, 140, 176);
-            btnAddRoom.Location = new Point(12, 256);
-            btnAddRoom.Margin = new Padding(4, 3, 4, 3);
-            btnAddRoom.MinimumSize = new Size(100, 46);
             btnAddRoom.Name = "btnAddRoom";
             btnAddRoom.PressColor = Color.FromArgb(132, 49, 90);
             btnAddRoom.PressDepth = 0.15F;
-            btnAddRoom.Size = new Size(117, 46);
-            btnAddRoom.TabIndex = 7;
-            btnAddRoom.Text = "добавить\nкомнату";
             btnAddRoom.UseVisualStyleBackColor = false;
+            btnAddRoom.Click += btnAddRoom_Click;
             // 
             // AuthorizationForm
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(button1);
+            Controls.Add(btnConnect);
             Controls.Add(btnAddRoom);
             Controls.Add(AuthorizationLabel);
-            Controls.Add(textBox2);
+            Controls.Add(PassswordTxt);
             Controls.Add(AuthorizationTxt);
             ForeColor = SystemColors.ButtonHighlight;
             Name = "AuthorizationForm";
@@ -99,9 +93,9 @@ namespace Ubit_Slendermena_Client
         #endregion
 
         private TextBox AuthorizationTxt;
-        private TextBox textBox2;
+        private TextBox PassswordTxt;
         private Label AuthorizationLabel;
-        private Button button1;
+        private Button btnConnect;
         private RoundButton btnAddRoom;
     }
 }

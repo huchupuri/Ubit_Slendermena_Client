@@ -123,12 +123,18 @@
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="AuthorizationTxt.Size" type="System.Drawing.Size, System.Drawing">
-    <value>969, 47</value>
+    <value>1010, 47</value>
   </data>
-  <data name="button1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>94, 29</value>
+  <data name="PassswordTxt.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>6, 6, 6, 6</value>
   </data>
-  <data name="button1.Text" xml:space="preserve">
+  <data name="PassswordTxt.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1032, 47</value>
+  </data>
+  <data name="btnConnect.Size" type="System.Drawing.Size, System.Drawing">
+    <value>84, 34</value>
+  </data>
+  <data name="btnConnect.Text" xml:space="preserve">
     <value>button1</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
@@ -138,9 +144,6 @@
   <data name="btnAddRoom.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 12pt</value>
   </data>
-  <data name="btnAddRoom.Location" type="System.Drawing.Point, System.Drawing">
-    <value>643, 569</value>
-  </data>
   <data name="btnAddRoom.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 3, 4, 3</value>
   </data>
@@ -148,15 +151,16 @@
     <value>100, 46</value>
   </data>
   <data name="btnAddRoom.Size" type="System.Drawing.Size, System.Drawing">
-    <value>305, 46</value>
+    <value>117, 46</value>
   </data>
   <data name="btnAddRoom.Text" xml:space="preserve">
-    <value>Добавить комнату</value>
+    <value>добавить
+комнату</value>
   </data>
   <data name="$this.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAABAAAAAMACAIAAAA12IJaAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
-        EAAACxABrSO9dQAA/7JJREFUeF7s/YeW27qytQ2TSFTb7XY757i8vHLOea+dzjnvN/77v51/FAoAixOU
+        DQAACw0B7QfALAAA/7JJREFUeF7s/YeW27qytQ2TSFTb7XY757i8vHLOea+dzjnvN/77v51/FAoAixOU
         KKmVu55Ro91WgyQYBM6J2DQHRrsiuL2yW/B+ZDDdpsHjbRo8nqIcEvi8ngpmDphuXRqzWhwaeF3WBfeb
         qa/A4lB2A37/1wX3q1xv8PnYO5jBKXB7Zbfg/chguk2Dx9s0eDxFOSTweT0VUKhmMN261BJ2cRwaeF3W
         Bfebqa/A4lB2A37/1wX3q1xv8PnYO5jBKXB7Zbfg/chguk2Dx9s0eDxFOSTweT0VUKhmMN261BJ2cRwa

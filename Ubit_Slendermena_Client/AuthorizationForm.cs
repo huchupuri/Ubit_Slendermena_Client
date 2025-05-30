@@ -1,5 +1,8 @@
 ﻿using GameClient.Forms;
+using GameClient.Models;
 using GameClient.Network;
+using JeopardyGame;
+using System.Windows.Forms;
 using Ubit_Slendermena_Client.Technical;
 
 
@@ -7,6 +10,8 @@ namespace Ubit_Slendermena_Client
 {
     public partial class AuthorizationForm : Form
     {
+        private GameNetworkClient? _client;
+        private bool _isConnecting = false;
         public AuthorizationForm()
         {
             InitializeComponent();
@@ -16,34 +21,89 @@ namespace Ubit_Slendermena_Client
         {
 
         }
-
-        private async void button1_Click(object sender, EventArgs e)
+        private void HandleSuccessfulAuth(ServerMessage message, string successMessage)
         {
-            if (string.IsNullOrWhiteSpace(AuthorizationTxt.Text))
+
+            // Показываем информацию о игроке
+            string playerInfo = $"Добро пожаловать, {message.Username}!\n" +
+                               $"Игр сыграно: {message.TotalGames}\n" +
+                               $"Побед: {message.Wins}\n" +
+                               $"Общий счет: {message.TotalScore}";
+
+            MessageBox.Show(playerInfo, "Успешная аутентификация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            // Открываем игровую форму
+            var player = new Player()
             {
-                MessageBox.Show("Введите имя игрока!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Id = message.Id,
+                Username = message.Username,
+                TotalGames = message.TotalGames,
+                Score = message.TotalScore,
+                Wins = message.Wins
+            };
+            //var gameForm = new JeopardyGameForm(_client!, player);
+            //this.Hide();
+            //gameForm.ShowDialog();
+            //this.Close();
+        }
+        private void OnServerMessage(ServerMessage message)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<ServerMessage>(OnServerMessage), message);
                 return;
             }
-
-            var client = new GameNetworkClient();
-            bool connected = await client.ConnectAsync("localhost", 5000);
-
-            if (connected)
+            switch (message.Type)
             {
-                // Отправляем сообщение о входе
-                await client.SendMessageAsync(new { Type = "Login", PlayerName = AuthorizationTxt , Password = textBox2.Text});
 
-                // Открываем игровую форму
-                var gameForm = new GameForm(client, AuthorizationTxt.Text);
-                this.Hide();
-                gameForm.ShowDialog();
-                this.Close();
+                case "LoginSuccess":
+
+                    HandleSuccessfulAuth(message, "Вход выполнен успешно!");
+                    break;
+
+                case "RegisterSuccess":
+                    HandleSuccessfulAuth(message!, "Регистрация выполнена успешно!");
+                    break;
+
+                case "LoginFailed":
+                    break;
             }
-            else
+        }
+
+        private async void BtnConnect_Click(object? sender, EventArgs e)
+        {
+            if (_isConnecting) return;
+
+            _isConnecting = true;
+            btnConnect.Enabled = false;
+            btnConnect.Text = "Подключение...";
+
+            try
             {
-                button1.Enabled = true;
-                button1.Text = "Подключиться";
+                // Подключение к серверу
+                _client = new GameNetworkClient();
+                _client.MessageReceived += OnServerMessage;
+
+                string serverAddress = "localhost";
+                int port = 5000;
+
+                bool connected = await _client.ConnectAsync(serverAddress, port);
+                // Отправка данных аутентификации
+                await _client.SendMessageAsync(new
+                {
+                    Type = "Login",
+                    Username = AuthorizationTxt.Text.Trim(),
+                    Password = PassswordTxt.Text
+                });
             }
+            catch (Exception ex)
+            {
+                
+            }
+        }
+        private void btnAddRoom_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

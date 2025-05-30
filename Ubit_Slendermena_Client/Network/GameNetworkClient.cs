@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Windows.Forms;
 using GameClient.Models;
 
 namespace GameClient.Network;
@@ -66,34 +67,51 @@ public class GameNetworkClient
     {
         byte[] buffer = new byte[4096];
 
-        while (_isConnected && _stream != null)
+        try
         {
-            try
+            while (_isConnected && _stream != null)
             {
                 int bytesRead = _stream.Read(buffer, 0, buffer.Length);
                 if (bytesRead == 0)
                 {
+                    MessageBox.Show("Соединение закрыто сервером.", "Разрыв соединения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     break;
                 }
 
-                string json = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                var message = JsonSerializer.Deserialize<ServerMessage>(json);
-                MessageBox.Show(message.Type, "Успешная аутентификацияuu", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                if (message != null)
+                // Копируем только реально полученные байты
+                byte[] receivedData = new byte[bytesRead];
+                Buffer.BlockCopy(buffer, 0, receivedData, 0, bytesRead);
+
+                string json = Encoding.UTF8.GetString(receivedData);
+
+                try
                 {
-                    MessageReceived?.Invoke(message);
+                    var message = JsonSerializer.Deserialize<ServerMessage>(json);
+                    
+
+                    if (message != null)
+                    {
+                        MessageReceived?.Invoke(message);
+                    }
+
                 }
-            }
-            catch (Exception ex)
-            {
-                if (_isConnected)
+                catch (JsonException ex)
                 {
-                    MessageBox.Show($"Ошибка получения сообщения: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Ошибка разбора JSON: {ex.Message}\nДанные: {json}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                break;
             }
         }
-
-        Disconnect();
+        catch (IOException)
+        {
+            MessageBox.Show("Соединение потеряно.", "Ошибка сети", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Непредвиденная ошибка: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Disconnect();
+        }
     }
 }

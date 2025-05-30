@@ -54,14 +54,36 @@ namespace JeopardyGame
                 Invoke(new Action<ServerMessage>(OnServerMessage), message);
                 return;
             }
-            MessageBox.Show(message.Type, "Успешная аутентификация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(message?.Type, "Получено", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             switch (message.Type)
             {
-                case "LoginFailed":
+                case "GameData":
+                    LoadGameData(message);
                     break;
 
-                case "SelectQuestion":
-                    MessageBox.Show("playerInfo", "Успешная аутентификация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                case "PlayerTurn":
+                    HandlePlayerTurn(message);
+                    break;
+
+                case "Question":
+                    ShowQuestion(message.Question);
+                    break;
+
+                case "AnswerCorrect":
+                    HandleCorrectAnswer(message);
+                    break;
+
+                case "AnswerIncorrect":
+                    HandleIncorrectAnswer(message);
+                    break;
+
+                case "GameOver":
+                    HandleGameOver(message);
+                    break;
+
+                default:
+                    MessageBox.Show($"Неизвестный тип сообщения: {message.Type}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     break;
             }
         }
@@ -332,6 +354,7 @@ namespace JeopardyGame
 
         private void SetupEventHandlers()
         {
+
             _networkClient.MessageReceived += OnServerMessage;
             this.FormClosing += JeopardyGameForm_FormClosing;
         }

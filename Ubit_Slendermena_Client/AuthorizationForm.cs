@@ -15,6 +15,7 @@ namespace Ubit_Slendermena_Client
         public AuthorizationForm()
         {
             InitializeComponent();
+
         }
 
         private void AuthorizationForm_Load(object sender, EventArgs e)
@@ -41,8 +42,10 @@ namespace Ubit_Slendermena_Client
                 Score = message.TotalScore,
                 Wins = message.Wins
             };
+            
             //var gameForm = new JeopardyGameForm(_client!, player);
             //this.Hide();
+
             //gameForm.ShowDialog();
             //this.Close();
         }
@@ -53,6 +56,7 @@ namespace Ubit_Slendermena_Client
                 Invoke(new Action<ServerMessage>(OnServerMessage), message);
                 return;
             }
+            MessageBox.Show(message?.Type ?? "Неизвестное сообщение", "Получено", MessageBoxButtons.OK, MessageBoxIcon.Information);
             switch (message.Type)
             {
 
@@ -81,13 +85,7 @@ namespace Ubit_Slendermena_Client
             try
             {
                 // Подключение к серверу
-                _client = new GameNetworkClient();
-                _client.MessageReceived += OnServerMessage;
-
-                string serverAddress = "localhost";
-                int port = 5000;
-
-                bool connected = await _client.ConnectAsync(serverAddress, port);
+                
                 // Отправка данных аутентификации
                 await _client.SendMessageAsync(new
                 {

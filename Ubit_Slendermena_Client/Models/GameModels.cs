@@ -34,7 +34,7 @@ public class ServerMessage
     public string Username { get; set; } = string.Empty;
     public List<Category> Categories { get; set; } = new();
     public Player Player { get; set; }
-    public List<Player> Players { get; set; } = new();
+    public List<Player> Players { get; set; } = new();  
     public Question? Question { get; set; }
     public int QuestionId { get; set; }
     public bool IsCorrect { get; set; }

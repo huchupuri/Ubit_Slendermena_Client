@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GameClient;
 using GameClient.Forms;
+using Ubit_Slendermena_Client;
 
 namespace JeopardyGame
 {
@@ -64,9 +65,10 @@ namespace JeopardyGame
                 case "RegisterSuccess":
                     break;
 
-                case "SelectQuestion":
-                    var MessageForm = new ConnectionForm();
-                    MessageForm.ShowDialog();
+                case "Question":
+                    _networkClient.MessageReceived -= OnServerMessage;
+                    var questionForm= new QuestionForm(message.Message);
+                    questionForm.ShowDialog();
                     break;
                 default : MessageBox.Show(message.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information); break;
             }

@@ -160,7 +160,7 @@
   <data name="$this.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAABAAAAAMACAIAAAA12IJaAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
-        DQAACw0B7QfALAAA/7JJREFUeF7s/YeW27qytQ2TSFTb7XY757i8vHLOea+dzjnvN/77v51/FAoAixOU
+        DAAACwwBP0AiyAAA/7JJREFUeF7s/YeW27qytQ2TSFTb7XY757i8vHLOea+dzjnvN/77v51/FAoAixOU
         KKmVu55Ro91WgyQYBM6J2DQHRrsiuL2yW/B+ZDDdpsHjbRo8nqIcEvi8ngpmDphuXRqzWhwaeF3WBfeb
         qa/A4lB2A37/1wX3q1xv8PnYO5jBKXB7Zbfg/chguk2Dx9s0eDxFOSTweT0VUKhmMN261BJ2cRwaeF3W
         Bfebqa/A4lB2A37/1wX3q1xv8PnYO5jBKXB7Zbfg/chguk2Dx9s0eDxFOSTweT0VUKhmMN261BJ2cRwa
@@ -5291,6 +5291,6 @@
 </value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>1513, 922</value>
+    <value>882, 553</value>
   </data>
 </root>

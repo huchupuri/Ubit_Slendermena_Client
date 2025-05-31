@@ -20,7 +20,15 @@ namespace Ubit_Slendermena_Client
 
             _client = new GameNetworkClient();
             _client.MessageReceived += OnServerMessage;
+            PlayerConnection();
+        }
+        private async void PlayerConnection()
+        {
+            string serverAddress = "localhost";
+            int port = 5000;
 
+            connected = await _client.ConnectAsync(serverAddress, port);
+            connected = await _client.ConnectAsync(serverAddress, port);
         }
         private void HandleSuccessfulAuth(ServerMessage message, string successMessage)
         {
@@ -91,7 +99,8 @@ namespace Ubit_Slendermena_Client
             //_client?.Disconnect();
             //_client = new GameNetworkClient();
             
-            connected = await _client.ConnectAsync(serverAddress, port);
+            //connected = await _client.ConnectAsync(serverAddress, port);
+            //connected = await _client.ConnectAsync(serverAddress, port);
 
             if (!connected)
             {
@@ -102,10 +111,6 @@ namespace Ubit_Slendermena_Client
                 return;
             }
 
-            await _client.SendMessageAsync(new
-            {
-                Type = "SelectQuestion"
-            });
             await _client.SendMessageAsync(new
             {
                 Type = "Login",
@@ -127,7 +132,8 @@ namespace Ubit_Slendermena_Client
             string serverAddress = "localhost";
             int port = 5000;    
             connected = await _client.ConnectAsync(serverAddress, port);
-
+            //connected = await _client.ConnectAsync(serverAddress, port);
+            Task.Delay(1000).Wait();
             if (!connected)
             {
                 _isConnecting = false;

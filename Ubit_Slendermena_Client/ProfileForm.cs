@@ -10,21 +10,11 @@ using System.Windows.Forms;
 
 namespace Ubit_Slendermena_Client
 {
-    public partial class MenuForm : Form
+    public partial class ProfileForm : Form
     {
-        public MenuForm()
+        public ProfileForm()
         {
             InitializeComponent();
-        }
-
-        private void ProfileBtn_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void LocalizationBtn_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

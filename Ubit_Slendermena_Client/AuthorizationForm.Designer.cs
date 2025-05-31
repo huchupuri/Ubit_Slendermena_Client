@@ -85,7 +85,6 @@ namespace Ubit_Slendermena_Client
             Controls.Add(AuthorizationTxt);
             ForeColor = SystemColors.ButtonHighlight;
             Name = "AuthorizationForm";
-            Load += AuthorizationForm_Load;
             ResumeLayout(false);
             PerformLayout();
         }

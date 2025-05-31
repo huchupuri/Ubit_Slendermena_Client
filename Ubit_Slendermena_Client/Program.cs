@@ -5,10 +5,13 @@ namespace GameClient;
 
 internal static class Program
 {
+    
+    static public AuthorizationForm form;
     [STAThread]
     static void Main()
     {
         ApplicationConfiguration.Initialize();
-        Application.Run(new AuthorizationForm());
+        form = new AuthorizationForm();
+        Application.Run(form);
     }
 }

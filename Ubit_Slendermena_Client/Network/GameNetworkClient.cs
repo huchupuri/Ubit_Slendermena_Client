@@ -8,10 +8,7 @@ namespace GameClient.Network;
 
 public class GameNetworkClient
 {
-    private TcpClient? _client;
-    private NetworkStream? _stream;
-    private bool _isConnected;
-    private Thread? _receiveThread;
+    private TcpClient? _client; private NetworkStream? _stream; private bool _isConnected; private Thread? _receiveThread;
 
     public event Action<ServerMessage>? MessageReceived;
     public event Action? Disconnected;
@@ -65,7 +62,8 @@ public class GameNetworkClient
 
     private void ReceiveMessages()
     {
-        byte[] buffer = new byte[4096];
+        var buffer = new byte[4096];
+        var stringBuilder = new StringBuilder();
 
         try
         {
@@ -78,27 +76,37 @@ public class GameNetworkClient
                     break;
                 }
 
-                // Копируем только реально полученные байты
-                byte[] receivedData = new byte[bytesRead];
-                Buffer.BlockCopy(buffer, 0, receivedData, 0, bytesRead);
+                // Добавляем полученные данные к строковому буферу
+                string chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                stringBuilder.Append(chunk);
 
-                string json = Encoding.UTF8.GetString(receivedData);
+                string fullBuffer = stringBuilder.ToString();
+                int newLineIndex;
 
-                try
+                // Обрабатываем каждое JSON-сообщение по строкам (\n)
+                while ((newLineIndex = fullBuffer.IndexOf('\n')) >= 0)
                 {
-                    var message = JsonSerializer.Deserialize<ServerMessage>(json);
-                    
+                    string line = fullBuffer[..newLineIndex].Trim(); // строка без \n
+                    fullBuffer = fullBuffer[(newLineIndex + 1)..];   // остаток
+                    if (string.IsNullOrWhiteSpace(line)) continue;
 
-                    if (message != null)
+                    try
                     {
-                        MessageReceived?.Invoke(message);
+                        var message = JsonSerializer.Deserialize<ServerMessage>(line);
+                        if (message != null)
+                        {
+                            MessageReceived?.Invoke(message);
+                        }
                     }
+                    catch (JsonException ex)
+                    {
+                        MessageBox.Show($"Ошибка разбора JSON: {ex.Message}\nДанные: {line}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
 
-                }
-                catch (JsonException ex)
-                {
-                    MessageBox.Show($"Ошибка разбора JSON: {ex.Message}\nДанные: {json}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                // Обновляем stringBuilder новым остатком
+                stringBuilder.Clear();
+                stringBuilder.Append(fullBuffer);
             }
         }
         catch (IOException)
@@ -114,4 +122,5 @@ public class GameNetworkClient
             Disconnect();
         }
     }
+
 }

@@ -7,12 +7,14 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GameClient;
+using GameClient.Forms;
 
 namespace JeopardyGame
 {
-    public partial class JeopardyGameForm : Form
+    public  class JeopardyGameForm : Form
     {
-        private readonly GameNetworkClient _networkClient;
+        private readonly GameNetworkClient _networkClient = Program.form._client;
         private readonly Player _currentPlayer;
 
         // Игровое поле
@@ -39,9 +41,9 @@ namespace JeopardyGame
         private int _timeLeft = 30;
         private bool _isMyTurn = false;
 
-        public JeopardyGameForm(GameNetworkClient networkClient, Player currentPlayer)
+        public JeopardyGameForm(Player currentPlayer)
         {
-            _networkClient = networkClient;
+            //_networkClient = networkClient;
             _currentPlayer = currentPlayer;
             InitializeComponent();
             SetupEventHandlers();
@@ -54,37 +56,19 @@ namespace JeopardyGame
                 Invoke(new Action<ServerMessage>(OnServerMessage), message);
                 return;
             }
-            MessageBox.Show(message?.Type, "Получено", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
             switch (message.Type)
             {
-                case "GameData":
-                    LoadGameData(message);
+                case "LoginSuccess":
                     break;
 
-                case "PlayerTurn":
-                    HandlePlayerTurn(message);
+                case "RegisterSuccess":
                     break;
 
-                case "Question":
-                    ShowQuestion(message.Question);
+                case "SelectQuestion":
+                    var MessageForm = new ConnectionForm();
+                    MessageForm.ShowDialog();
                     break;
-
-                case "AnswerCorrect":
-                    HandleCorrectAnswer(message);
-                    break;
-
-                case "AnswerIncorrect":
-                    HandleIncorrectAnswer(message);
-                    break;
-
-                case "GameOver":
-                    HandleGameOver(message);
-                    break;
-
-                default:
-                    MessageBox.Show($"Неизвестный тип сообщения: {message.Type}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    break;
+                default : MessageBox.Show(message.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information); break;
             }
         }
 
@@ -354,7 +338,14 @@ namespace JeopardyGame
 
         private void SetupEventHandlers()
         {
+            // Добавляем отладочную информацию
+            Console.WriteLine($"Настройка обработчиков событий. Клиент подключен: {_networkClient.IsConnected}");
 
+            _networkClient.Disconnected += () =>
+            {
+                Console.WriteLine("Клиент отключен");
+                UpdateGameStatus("❌ Соединение потеряно", Color.Red);
+            };
             _networkClient.MessageReceived += OnServerMessage;
             this.FormClosing += JeopardyGameForm_FormClosing;
         }
@@ -383,7 +374,12 @@ namespace JeopardyGame
             // Отправляем запрос на сервер
             int categoryId = categoryIndex + 1; // ID категории (1-based)
             int price = (questionIndex + 1) * 100; // Цена вопроса
+            string serverAddress = "localhost";
+            int port = 5000;
 
+            //// Пересоздаем клиент
+            //_client?.Disconnect();
+            //_client = new GameNetworkClient();
             await _networkClient.SendMessageAsync(new
             {
                 Type = "SelectQuestion",
@@ -703,8 +699,7 @@ namespace JeopardyGame
 
         private void UpdateGameStatus(string message, Color color)
         {
-            _gameStatusLabel.Text = $"{DateTime.Now:HH:mm:ss} - {message}";
-            _gameStatusLabel.ForeColor = color;
+            
         }
 
         private void QuestionTimer_Tick(object sender, EventArgs e)

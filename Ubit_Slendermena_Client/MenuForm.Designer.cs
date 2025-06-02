@@ -43,6 +43,7 @@
             PlayBtn.TabIndex = 0;
             PlayBtn.Text = "Играть";
             PlayBtn.UseVisualStyleBackColor = true;
+            PlayBtn.Click += PlayBtn_Click;
             // 
             // ProfileBtn
             // 

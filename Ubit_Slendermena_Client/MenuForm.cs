@@ -1,4 +1,7 @@
-﻿using System;
+﻿using GameClient;
+using GameClient.Models;
+using GameClient.Network;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,11 +15,13 @@ namespace Ubit_Slendermena_Client
 {
     public partial class MenuForm : Form
     {
-        public MenuForm()
+        private readonly Player Player;
+        private readonly GameNetworkClient _networkClient = Program.form._client;
+        public MenuForm(Player player)
         {
             InitializeComponent();
+            Player = player;
         }
-
         private void ProfileBtn_Click(object sender, EventArgs e)
         {
 
@@ -25,6 +30,13 @@ namespace Ubit_Slendermena_Client
         private void LocalizationBtn_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private async void PlayBtn_Click(object sender, EventArgs e)
+        {
+            var newGame = new NewGame(Player);
+            newGame.ShowDialog();
+            this.Close();
         }
     }
 }

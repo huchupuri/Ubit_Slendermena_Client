@@ -46,7 +46,7 @@ namespace Ubit_Slendermena_Client
             {
                 Type = "Answer",
 
-            });
+            }));
 
             
         }

@@ -1,4 +1,7 @@
-﻿using System;
+﻿using GameClient.Models;
+using GameClient.Network;
+using GameClient;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,14 +10,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Ubit_Slendermena_Client
 {
     public partial class NewGame : Form
     {
-        public NewGame()
+        private readonly Player Player;
+        private readonly GameNetworkClient _networkClient = Program.form._client;
+        public NewGame(Player player)
         {
             InitializeComponent();
+            _networkClient.MessageReceived += OnServerMessage;
+            Player = player;
         }
 
         private void btnUploadQuestions_Click(object sender, EventArgs e)
@@ -29,16 +37,31 @@ namespace Ubit_Slendermena_Client
             }
         }
 
-        private void btnCreate_Click(object sender, EventArgs e)
+        private  async void btnCreate_Click(object sender, EventArgs e)
         {
-            if (int.TryParse(txtPlayerCount.Text, out int playerCount) && playerCount > 0)
+            await _networkClient.SendMessageAsync(new
             {
-                MessageBox.Show($"Создание игры на {playerCount} игроков.");
-                // Логика создания игры
+                Type = "StartGame",
+                playerCount = int.Parse(txtPlayerCount.Text)
+            });
+
+        }
+        private void OnServerMessage(ServerMessage message)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<ServerMessage>(OnServerMessage), message);
+                return;
             }
-            else
+            switch (message.Type)
             {
-                MessageBox.Show("Введите корректное количество игроков.");
+                case "GameStarted":
+                    _networkClient.MessageReceived -= OnServerMessage;
+                    var gameForm = new JeopardyGameForm(Player);
+                    gameForm.ShowDialog();
+                    this.Close();
+                    break;
+                default: MessageBox.Show(message.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information); break;
             }
         }
     }

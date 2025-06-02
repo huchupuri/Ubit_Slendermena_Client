@@ -1,7 +1,6 @@
 ﻿using GameClient.Forms;
 using GameClient.Models;
 using GameClient.Network;
-using JeopardyGame;
 using Microsoft.VisualBasic.Logging;
 using System.Windows.Forms;
 using Ubit_Slendermena_Client.Technical;
@@ -26,20 +25,15 @@ namespace Ubit_Slendermena_Client
         {
             string serverAddress = "localhost";
             int port = 5000;
-
             connected = await _client.ConnectAsync(serverAddress, port);
             connected = await _client.ConnectAsync(serverAddress, port);
+            await _client.SendMessageAsync(new
+            {
+                Type = "SelectQuestion"
+            });
         }
         private void HandleSuccessfulAuth(ServerMessage message, string successMessage)
         {
-            // Показываем информацию о игроке
-            string playerInfo = $"Добро пожаловать, {message.Username}!\n" +
-                               $"Игр сыграно: {message.TotalGames}\n" +
-                               $"Побед: {message.Wins}\n" +
-                               $"Общий счет: {message.TotalScore}";
-
-            //MessageBox.Show(playerInfo, "Успешная аутентификация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
             var player = new Player()
             {
                 Id = message.Id,
@@ -48,15 +42,11 @@ namespace Ubit_Slendermena_Client
                 Score = message.TotalScore,
                 Wins = message.Wins
             };
-
-            // НЕ отписываемся от событий - передаем клиент как есть
-            // _client.MessageReceived -= OnServerMessage; // Убираем эту строку
-
-            var gameForm = new JeopardyGameForm(player);
+            var menuForm = new MenuForm(player);
             _client.MessageReceived-= OnServerMessage;
             this.Hide();
 
-            gameForm.ShowDialog();
+            menuForm.ShowDialog();
             this.Close();
         }
         
@@ -76,11 +66,6 @@ namespace Ubit_Slendermena_Client
 
                 case "RegisterSuccess":
                     HandleSuccessfulAuth(message!, "Регистрация выполнена успешно!");
-                    break;
-
-                case "SelectQuestion":
-                    //var form2 = new ConnectionForm();
-                    //form2.ShowDialog();
                     break;
             }
         }

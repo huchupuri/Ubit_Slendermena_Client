@@ -34,7 +34,7 @@ namespace Ubit_Slendermena_Client
             _currentPlayer = currentPlayer;
             _networkClient = client;
             InitializeComponent();
-            SetupEventHandlers();
+            SubscribeToEvents();
             ShowGameBoard();
         }
         private void OnServerMessage(object sender, ServerMessage serverMessage)
@@ -62,15 +62,41 @@ namespace Ubit_Slendermena_Client
             }
         }
 
-        private void SetupEventHandlers()
+        private void SubscribeToEvents()
         {
-            // Добавляем отладочную информацию
-            Console.WriteLine($"Настройка обработчиков событий. Клиент подключен: {_networkClient.IsConnected}");
+            if (_networkClient != null)
+            {
+                _networkClient.MessageReceived += OnServerMessage;
+                _networkClient.ConnectionClosed += OnConnectionClosed;
+                //_networkClient.ErrorOccurred += OnErrorOccurred;
+            }
+        }
+        private void OnConnectionClosed(object sender, string reason)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, string>(OnConnectionClosed), sender, reason);
+                return;
+            }
 
-            _networkClient.MessageReceived += OnServerMessage;
-            this.FormClosing += JeopardyGameForm_FormClosing;
+            MessageBox.Show($"Соединение потеряно: {reason}", "Ошибка",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+            // Возвращаемся к предыдущей форме или закрываем
+            this.Close();
         }
 
+        private void OnErrorOccurred(object sender, Exception ex)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, Exception>(OnErrorOccurred), sender, ex);
+                return;
+            }
+
+            MessageBox.Show($"Ошибка соединения: {ex.Message}", "Ошибка",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
         private async void QuestionButton_Click(object sender, EventArgs e)
         {
 

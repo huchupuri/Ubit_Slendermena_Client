@@ -42,9 +42,13 @@ namespace Ubit_Slendermena_Client
             StartPosition = FormStartPosition.CenterScreen;
             WindowState = FormWindowState.Maximized;
             ResumeLayout(false);
-            CreateQuestionPanel();
             CreateGamePanel();
-
+            CreateQuestionPanel();
+            CreatePlayersPanel();
+            CreateTimer();
+            this.Controls.Add(_gamePanel);
+            this.Controls.Add(_questionPanel);
+            this.Controls.Add(_playersPanel);
         }
 
         private void CreateQuestionPanel()

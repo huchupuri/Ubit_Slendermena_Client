@@ -41,12 +41,11 @@ namespace Ubit_Slendermena_Client
         private void OpenGameForm()
         {
             // Отписываемся от событий перед передачей клиента
-            UnsubscribeFromEvents();
-
+            //UnsubscribeFromEvents();
             var gameForm = new JeopardyGameForm(_player, _networkClient);
             this.Hide();
-            gameForm.ShowDialog();
-            this.Close();
+            gameForm.Show();
+            //this.Close();
         }
 
         private void btnUploadQuestions_Click(object sender, EventArgs e)
@@ -82,7 +81,6 @@ namespace Ubit_Slendermena_Client
 
                 btnCreate.Enabled = false;
                 btnCreate.Text = "Создание...";
-                await _networkClient.LoginAsync("asd", "asd");
                 await _networkClient.SendMessageAsync(new
                 {
                     Type = "StartGame",
@@ -116,6 +114,7 @@ namespace Ubit_Slendermena_Client
                     case "GameStarted":
                         MessageBox.Show("Игра началась!", "Успех",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                         OpenGameForm();
                         break;
 

@@ -32,6 +32,7 @@ namespace Ubit_Slendermena_Client
         {
             //_networkClient = networkClient;
             _currentPlayer = currentPlayer;
+            _networkClient = client;
             InitializeComponent();
             SetupEventHandlers();
             ShowGameBoard();

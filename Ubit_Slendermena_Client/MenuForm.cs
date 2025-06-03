@@ -85,7 +85,7 @@ namespace Ubit_Slendermena_Client
                 UnsubscribeFromClientEvents();
                 this.Hide();
 
-                var entryForm = new EntryForm();
+                var entryForm = new EntryForm(_client);
                 entryForm.ShowDialog();
                 this.Close();
             }

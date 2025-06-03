@@ -17,7 +17,7 @@ namespace Ubit_Slendermena_Client
             if (disposing && (components != null))
             {
                 components.Dispose();
-            }
+            } 
             base.Dispose(disposing);
         }
 
@@ -33,7 +33,7 @@ namespace Ubit_Slendermena_Client
             // 
             // JeopardyGameForm
             // 
-            BackColor = Color.DarkBlue;
+            BackColor = Color.Black;
             BackgroundImage = Properties.Resource.bigbrain;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(1382, 853);
@@ -42,6 +42,9 @@ namespace Ubit_Slendermena_Client
             StartPosition = FormStartPosition.CenterScreen;
             WindowState = FormWindowState.Maximized;
             ResumeLayout(false);
+            CreateQuestionPanel();
+            CreateGamePanel();
+
         }
 
         private void CreateQuestionPanel()

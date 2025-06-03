@@ -12,8 +12,9 @@ namespace Ubit_Slendermena_Client
         private bool _isConnecting = false;
         private bool _connected = false;
 
-        public EntryForm()
+        public EntryForm(GameClient.Network.GameClient? _client)
         {
+            this._client = _client;
             InitializeComponent();
             InitializeClient();
         }
@@ -55,7 +56,6 @@ namespace Ubit_Slendermena_Client
         {
             try
             {
-                //MessageBox.Show(message.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 var player = new Player()
                 {
                     Id = message.Id,
@@ -65,18 +65,30 @@ namespace Ubit_Slendermena_Client
                     Wins = message.Wins
                 };
 
-                _client.MessageReceived -= OnServerMessage;
+                // ВАЖНО: Отписываемся от событий ПЕРЕД передачей клиента
+                UnsubscribeFromEvents();
+
                 // Передаем клиент в MenuForm для дальнейшего использования
                 var menuForm = new MenuForm(player, _client);
-                // Отписываемся от событий, так как теперь MenuForm будет обрабатывать сообщения
-                //this.Hide();
-                menuForm.ShowDialog();
+
+                this.Hide();
+                menuForm.Show();
                 //this.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка при переходе в меню: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            if (_client != null)
+            {
+                _client.MessageReceived -= OnServerMessage;
+                _client.ConnectionClosed -= OnConnectionClosed;
+                _client.ErrorOccurred -= OnErrorOccurred;
             }
         }
 
@@ -87,7 +99,6 @@ namespace Ubit_Slendermena_Client
                 Invoke(new Action<object, ServerMessage>(OnServerMessage), sender, serverMessage);
                 return;
             }
-            MessageBox.Show(serverMessage.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             try
             {
@@ -108,7 +119,6 @@ namespace Ubit_Slendermena_Client
                         break;
 
                     default:
-                        // Логируем неизвестные типы сообщений
                         Console.WriteLine($"Получено неизвестное сообщение: {serverMessage.Type}");
                         break;
                 }
@@ -187,16 +197,15 @@ namespace Ubit_Slendermena_Client
                 return;
             }
 
-            //_isConnecting = true;
-            //btnConnect.Enabled = false;
-            //btnConnect.Text = "Подключение...";
+            _isConnecting = true;
+            btnConnect.Enabled = false;
+            btnConnect.Text = "Подключение...";
 
             try
             {
                 if (!_connected)
                 {
                     bool connectionResult = await ConnectToServerAsync();
-                    //connectionResult = await ConnectToServerAsync();
                     if (!connectionResult)
                     {
                         EnableConnectButton();
@@ -226,7 +235,6 @@ namespace Ubit_Slendermena_Client
 
             try
             {
-                // Подключаемся к серверу, если еще не подключены
                 if (!_connected)
                 {
                     bool connectionResult = await ConnectToServerAsync();
@@ -239,10 +247,7 @@ namespace Ubit_Slendermena_Client
                     }
                 }
 
-                // Для демонстрации - отправляем команду выбора вопроса
-                // В реальном приложении здесь должна быть логика создания комнаты
-                await _client.SelectQuestionAsync(1); // Выбираем вопрос с ID = 1
-
+                await _client.SelectQuestionAsync(1);
                 MessageBox.Show("Команда отправлена на сервер", "Информация",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -261,12 +266,13 @@ namespace Ubit_Slendermena_Client
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            // Отключаемся от сервера при закрытии формы
+            UnsubscribeFromEvents();
+
             if (_client != null && _connected)
             {
                 try
                 {
-                    _client.DisconnectAsync().Wait(1000); // Ждем максимум 1 секунду
+                    _client.DisconnectAsync().Wait(1000);
                 }
                 catch (Exception ex)
                 {

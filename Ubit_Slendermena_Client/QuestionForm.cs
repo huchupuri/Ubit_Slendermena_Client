@@ -8,32 +8,33 @@ namespace Ubit_Slendermena_Client
 {
     public partial class QuestionForm : Form
     {
-        private readonly GameNetworkClient _networkClient = Program.form._client;
+        private GameClient.Network.GameClient? _client;
 
-        public QuestionForm(string question)
+        public QuestionForm(string question, GameClient.Network.GameClient client)
         {
             InitializeComponent();
             labelQuestion.Text = question;
-            _networkClient.MessageReceived += OnServerMessage;
+            _client = client;
+            _client.MessageReceived += OnServerMessage;
         }
-        private void OnServerMessage(ServerMessage message)
+        private void OnServerMessage(object sender, ServerMessage message)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<ServerMessage>(OnServerMessage), message);
+                Invoke(new Action<object, ServerMessage>(OnServerMessage), sender, message);
                 return;
             }
             switch (message.Type)
             {
                 case "AnswerCorrect":
                     MessageBox.Show("ответ правильный", "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    _networkClient.MessageReceived -= OnServerMessage;
+                    _client.MessageReceived -= OnServerMessage;
                     this.Close();
                     break;
 
                 case "AnswerFailed":
                     MessageBox.Show("ответ неправильный", "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    _networkClient.MessageReceived -= OnServerMessage;
+                    _client.MessageReceived -= OnServerMessage;
                     this.Close();
                     break;
                 default: MessageBox.Show(message.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information); break;
@@ -42,13 +43,13 @@ namespace Ubit_Slendermena_Client
         private void buttonSubmit_Click(object sender, EventArgs e)
         {
             string userAnswer = textBoxAnswer.Text.Trim().ToLower();
-            _networkClient.SendMessageAsync((new
+            _client.SendMessageAsync((new
             {
                 Type = "Answer",
 
             }));
 
-            
+
         }
     }
 }

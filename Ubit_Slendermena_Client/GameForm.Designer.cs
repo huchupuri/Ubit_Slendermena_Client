@@ -1,7 +1,7 @@
 ﻿using Ubit_Slendermena_Client.Technical;
 namespace Ubit_Slendermena_Client
 {
-    partial class JeopardyGameForm: Form
+    partial class JeopardyGameForm : Form
     {
         /// <summary>
         /// Required designer variable.
@@ -256,14 +256,16 @@ namespace Ubit_Slendermena_Client
                         button.Click += QuestionButton_Click;
 
                         // Эффект наведения
-                        button.MouseEnter += (s, e) => {
+                        button.MouseEnter += (s, e) =>
+                        {
                             if (button.Enabled && _isMyTurn)
                             {
                                 button.BackColor = Color.LightBlue;
                                 button.ForeColor = Color.DarkBlue;
                             }
                         };
-                        button.MouseLeave += (s, e) => {
+                        button.MouseLeave += (s, e) =>
+                        {
                             if (button.Enabled)
                             {
                                 button.BackColor = Color.Blue;

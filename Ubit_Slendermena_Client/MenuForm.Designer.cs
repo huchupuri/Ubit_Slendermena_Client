@@ -50,7 +50,7 @@
             resources.ApplyResources(ProfileBtn, "ProfileBtn");
             ProfileBtn.Name = "ProfileBtn";
             ProfileBtn.UseVisualStyleBackColor = false;
-            ProfileBtn.Click += ProfileBtn_Click;
+            //ProfileBtn.Click += ProfileBtn_Click;
             // 
             // LocalizationBtn
             // 
@@ -58,7 +58,7 @@
             resources.ApplyResources(LocalizationBtn, "LocalizationBtn");
             LocalizationBtn.Name = "LocalizationBtn";
             LocalizationBtn.UseVisualStyleBackColor = false;
-            LocalizationBtn.Click += LocalizationBtn_Click;
+            //LocalizationBtn.Click += LocalizationBtn_Click;
             // 
             // ExitBtn
             // 

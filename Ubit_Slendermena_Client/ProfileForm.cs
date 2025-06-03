@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameClient.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,8 +13,10 @@ namespace Ubit_Slendermena_Client
 {
     public partial class ProfileForm : Form
     {
-        public ProfileForm()
+        private readonly Player _player;
+        public ProfileForm(Player player)
         {
+            _player = player;
             InitializeComponent();
         }
     }

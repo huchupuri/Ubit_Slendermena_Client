@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace GameClient.Models
@@ -25,5 +26,22 @@ namespace GameClient.Models
         public int TotalGames { get; set; }
         public int Wins { get; set; }
         public int TotalScore { get; set; }
+        public static ServerMessage FromJson(string json)
+        {
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                return JsonSerializer.Deserialize<ServerMessage>(json, options) ?? new ServerMessage();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка десериализации сообщения: {ex.Message}");
+                return new ServerMessage { Type = "Error", Message = "Ошибка обработки сообщения" };
+            }
+        }
     }
 }

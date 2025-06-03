@@ -1,127 +1,187 @@
-﻿using System.Net.Sockets;
+﻿using GameClient.Models;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
-using System.Windows.Forms;
-using GameClient.Models;
 
-namespace GameClient.Network;
-
-public class GameNetworkClient
+namespace GameClient.Network
 {
-    private TcpClient? _client; private NetworkStream? _stream; private bool _isConnected; private Thread? _receiveThread;
-
-    public event Action<ServerMessage>? MessageReceived;
-    public event Action? Disconnected;
-
-    public bool IsConnected => _isConnected;
-
-    public async Task<bool> ConnectAsync(string serverAddress, int port)
+    public class GameClient
     {
-        try
+        private ClientWebSocket _webSocket;
+        private readonly string _serverUrl;
+        private bool _isConnected;
+        private CancellationTokenSource _cts;
+
+        public event EventHandler<ServerMessage> MessageReceived;
+        public event EventHandler<string> ConnectionClosed;
+        public event EventHandler<Exception> ErrorOccurred;
+
+        public bool IsConnected => _isConnected && _webSocket?.State == WebSocketState.Open;
+
+        public GameClient(string serverUrl)
         {
-            _client = new TcpClient();
-            await _client.ConnectAsync(serverAddress, port);
-            _stream = _client.GetStream();
-            _isConnected = true;
-
-            _receiveThread = new Thread(ReceiveMessages) { IsBackground = true };
-            _receiveThread.Start();
-
-            return true;
+            _serverUrl = serverUrl;
+            _cts = new CancellationTokenSource();
         }
-        catch (Exception ex)
+
+        public async Task ConnectAsync()
         {
-            MessageBox.Show($"Ошибка подключения: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return false;
-        }
-    }
-
-
-    public void Disconnect()
-    {
-        _isConnected = false;
-        _stream?.Close();
-        _client?.Close();
-        Disconnected?.Invoke();
-    }
-
-    public async Task SendMessageAsync(object message)
-    {
-        if (!_isConnected || _stream == null) return;
-
-        try
-        {
-            string json = JsonSerializer.Serialize(message);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-            await _stream.WriteAsync(data);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Ошибка отправки сообщения: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-    }
-
-    private void ReceiveMessages()
-    {
-        var buffer = new byte[4096];
-        var stringBuilder = new StringBuilder();
-
-        try
-        {
-            while (_isConnected && _stream != null)
+            try
             {
-                int bytesRead = _stream.Read(buffer, 0, buffer.Length);
-                if (bytesRead == 0)
+                // Создаем новый WebSocket если предыдущий был закрыт
+                if (_webSocket?.State != WebSocketState.Open)
                 {
-                    MessageBox.Show("Соединение закрыто сервером.", "Разрыв соединения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    break;
+                    _webSocket?.Dispose();
+                    _webSocket = new ClientWebSocket();
+                    _cts?.Cancel();
+                    _cts = new CancellationTokenSource();
                 }
 
-                // Добавляем полученные данные к строковому буферу
-                string chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                stringBuilder.Append(chunk);
+                await _webSocket.ConnectAsync(new Uri(_serverUrl), _cts.Token);
+                _isConnected = true;
 
-                string fullBuffer = stringBuilder.ToString();
-                int newLineIndex;
-
-                // Обрабатываем каждое JSON-сообщение по строкам (\n)
-                while ((newLineIndex = fullBuffer.IndexOf('\n')) >= 0)
-                {
-                    string line = fullBuffer[..newLineIndex].Trim(); // строка без \n
-                    fullBuffer = fullBuffer[(newLineIndex + 1)..];   // остаток
-                    if (string.IsNullOrWhiteSpace(line)) continue;
-
-                    try
-                    {
-                        var message = JsonSerializer.Deserialize<ServerMessage>(line);
-                        if (message != null)
-                        {
-                            MessageReceived?.Invoke(message);
-                        }
-                    }
-                    catch (JsonException ex)
-                    {
-                        MessageBox.Show($"Ошибка разбора JSON: {ex.Message}\nДанные: {line}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-
-                // Обновляем stringBuilder новым остатком
-                stringBuilder.Clear();
-                stringBuilder.Append(fullBuffer);
+                // Запускаем прослушивание сообщений
+                _ = Task.Run(ReceiveMessagesAsync);
+            }
+            catch (Exception ex)
+            {
+                _isConnected = false;
+                ErrorOccurred?.Invoke(this, ex);
+                throw;
             }
         }
-        catch (IOException)
+
+        public async Task SendMessageAsync(object message)
         {
-            MessageBox.Show("Соединение потеряно.", "Ошибка сети", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (!IsConnected)
+                throw new InvalidOperationException("Клиент не подключен к серверу");
+
+            try
+            {
+                string jsonMessage = JsonSerializer.Serialize(message);
+                byte[] messageBytes = Encoding.UTF8.GetBytes(jsonMessage);
+
+                await _webSocket.SendAsync(new ArraySegment<byte>(messageBytes),
+                    WebSocketMessageType.Text, true, _cts.Token);
+            }
+            catch (Exception ex)
+            {
+                ErrorOccurred?.Invoke(this, ex);
+                throw;
+            }
         }
-        catch (Exception ex)
+
+        private async Task ReceiveMessagesAsync()
         {
-            MessageBox.Show($"Непредвиденная ошибка: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            byte[] buffer = new byte[4096];
+
+            try
+            {
+                while (_isConnected && _webSocket.State == WebSocketState.Open && !_cts.Token.IsCancellationRequested)
+                {
+                    WebSocketReceiveResult result = await _webSocket.ReceiveAsync(
+                        new ArraySegment<byte>(buffer), _cts.Token);
+
+                    if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
+                            "Закрытие по запросу сервера", CancellationToken.None);
+                        _isConnected = false;
+                        ConnectionClosed?.Invoke(this, "Соединение закрыто сервером");
+                        break;
+                    }
+
+                    if (result.MessageType == WebSocketMessageType.Text)
+                    {
+                        string messageText = Encoding.UTF8.GetString(buffer, 0, result.Count);
+
+                        // Преобразуем строку в объект ServerMessage
+                        ServerMessage serverMessage = ServerMessage.FromJson(messageText);
+
+                        // Вызываем событие с объектом ServerMessage
+                        MessageReceived?.Invoke(this, serverMessage);
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Нормальная отмена операции
+                _isConnected = false;
+            }
+            catch (WebSocketException ex)
+            {
+                _isConnected = false;
+                ConnectionClosed?.Invoke(this, $"Соединение прервано: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                _isConnected = false;
+                ErrorOccurred?.Invoke(this, ex);
+            }
         }
-        finally
+
+        public async Task LoginAsync(string username, string password)
         {
-            Disconnect();
+            await SendMessageAsync(new
+            {
+                Type = "Login",
+                Username = username,
+                Password = password
+            });
+        }
+
+        public async Task StartGameAsync(byte playerCount)
+        {
+            await SendMessageAsync(new
+            {
+                Type = "StartGame",
+                playerCount
+            });
+        }
+
+        public async Task SelectQuestionAsync(int categoryId)
+        {
+            await SendMessageAsync(new
+            {
+                Type = "SelectQuestion",
+                CategoryId = categoryId
+            });
+        }
+
+        public async Task SubmitAnswerAsync(int questionId, string answer)
+        {
+            await SendMessageAsync(new
+            {
+                Type = "Answer",
+                QuestionId = questionId,
+                Answer = answer
+            });
+        }
+
+        public async Task DisconnectAsync()
+        {
+            if (_isConnected && _webSocket?.State == WebSocketState.Open)
+            {
+                try
+                {
+                    await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
+                        "Клиент отключается", CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка при отключении: {ex.Message}");
+                }
+            }
+
+            _isConnected = false;
+            _cts?.Cancel();
+        }
+
+        public void Dispose()
+        {
+            _cts?.Cancel();
+            _webSocket?.Dispose();
+            _cts?.Dispose();
         }
     }
-
 }

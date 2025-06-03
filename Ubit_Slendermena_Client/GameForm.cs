@@ -8,28 +8,27 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GameClient;
-using GameClient.Forms;
 using Ubit_Slendermena_Client;
 
 namespace Ubit_Slendermena_Client
 {
     public partial class JeopardyGameForm : Form
     {
-        private readonly GameNetworkClient _networkClient = Program.form._client;
+        private readonly GameClient.Network.GameClient _networkClient;
         private readonly Player _currentPlayer;
 
         // Игровое поле
-       
-       
+
+
         private List<Category> _categories = new();
         private List<Player> _players = new();
         private Question _currentQuestion;
-        private bool[,] _answeredQuestions = new bool[6, 5]; 
+        private bool[,] _answeredQuestions = new bool[6, 5];
         private bool _canAnswer = true;
         private int _timeLeft = 30;
         private bool _isMyTurn = false;
 
-        public JeopardyGameForm(Player currentPlayer)
+        public JeopardyGameForm(Player currentPlayer, GameClient.Network.GameClient client)
         {
             //_networkClient = networkClient;
             _currentPlayer = currentPlayer;
@@ -37,14 +36,14 @@ namespace Ubit_Slendermena_Client
             SetupEventHandlers();
             ShowGameBoard();
         }
-        private void OnServerMessage(ServerMessage message)
+        private void OnServerMessage(object sender, ServerMessage serverMessage)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<ServerMessage>(OnServerMessage), message);
+                Invoke(new Action<object, ServerMessage>(OnServerMessage), sender, serverMessage);
                 return;
             }
-            switch (message.Type)
+            switch (serverMessage.Type)
             {
                 case "LoginSuccess":
                     break;
@@ -53,12 +52,12 @@ namespace Ubit_Slendermena_Client
                     break;
 
                 case "Question":
-                    MessageBox.Show(message.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(serverMessage.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     _networkClient.MessageReceived -= OnServerMessage;
-                    var questionForm= new QuestionForm(message.Message);
+                    var questionForm = new QuestionForm(serverMessage.Message, _networkClient);
                     questionForm.ShowDialog();
                     break;
-                default : MessageBox.Show(message.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information); break;
+                default: MessageBox.Show(serverMessage.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information); break;
             }
         }
 
@@ -67,11 +66,6 @@ namespace Ubit_Slendermena_Client
             // Добавляем отладочную информацию
             Console.WriteLine($"Настройка обработчиков событий. Клиент подключен: {_networkClient.IsConnected}");
 
-            _networkClient.Disconnected += () =>
-            {
-                Console.WriteLine("Клиент отключен");
-                UpdateGameStatus("❌ Соединение потеряно", Color.Red);
-            };
             _networkClient.MessageReceived += OnServerMessage;
             this.FormClosing += JeopardyGameForm_FormClosing;
         }
@@ -301,7 +295,8 @@ namespace Ubit_Slendermena_Client
 
             // Возвращаемся к игровому полю через 3 секунды
             var returnTimer = new System.Windows.Forms.Timer { Interval = 3000 };
-            returnTimer.Tick += (s, e) => {
+            returnTimer.Tick += (s, e) =>
+            {
                 returnTimer.Stop();
                 ShowGameBoard();
             };
@@ -423,15 +418,15 @@ namespace Ubit_Slendermena_Client
 
         private void UpdateGameStatus(string message, Color color)
         {
-            
+
         }
 
-        
+
 
         private void JeopardyGameForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             _questionTimer?.Stop();
-            _networkClient?.Disconnect();
+             //_networkClient?.Disconnect();
         }
     }
 }

@@ -3,7 +3,7 @@
 
 //namespace GameClient.Forms;
 
-//public partial class ConnectionForm2 : Form
+//public partial class ConnectionForm : Form
 //{
 //    private TabControl tabControl;
 //    private TabPage tabLogin;
@@ -32,7 +32,7 @@
 //    private GameNetworkClient? _client;
 //    private bool _isConnecting = false;
 
-//    public ConnectionForm2()
+//    public ConnectionForm()
 //    {
 //        InitializeComponent();
 //    }

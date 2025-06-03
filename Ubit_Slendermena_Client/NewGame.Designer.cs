@@ -46,7 +46,7 @@
             btnUploadQuestions.TabIndex = 1;
             btnUploadQuestions.Text = "ЗАГРУЗИТЬ ПАКЕТ ВОПРОСОВ";
             btnUploadQuestions.UseVisualStyleBackColor = false;
-            btnUploadQuestions.Click += btnUploadQuestions_Click;
+            //btnUploadQuestions.Click += btnUploadQuestions_Click;
             // 
             // txtPlayerCount
             // 

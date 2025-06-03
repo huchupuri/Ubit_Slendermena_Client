@@ -1,5 +1,5 @@
 ﻿using Ubit_Slendermena_Client.Technical;
-
+using GameClient.Network;
 namespace Ubit_Slendermena_Client
 {
     partial class EntryForm

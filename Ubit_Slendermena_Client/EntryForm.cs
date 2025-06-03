@@ -8,12 +8,12 @@ using Ubit_Slendermena_Client.Technical;
 
 namespace Ubit_Slendermena_Client
 {
-    public partial class AuthorizationForm : Form
+    public partial class EntryForm : Form
     {
         public GameNetworkClient? _client;
         private bool _isConnecting = true;
         private bool connected;
-        public AuthorizationForm()
+        public EntryForm()
         {
             InitializeComponent();
 
@@ -25,12 +25,12 @@ namespace Ubit_Slendermena_Client
         {
             string serverAddress = "localhost";
             int port = 5000;
-            connected = await _client.ConnectAsync(serverAddress, port);
-            connected = await _client.ConnectAsync(serverAddress, port);
-            await _client.SendMessageAsync(new
-            {
-                Type = "SelectQuestion"
-            });
+            //connected = await _client.ConnectAsync(serverAddress, port);
+            //connected = await _client.ConnectAsync(serverAddress, port);
+            //await _client.SendMessageAsync(new
+            //{
+            //    Type = "SelectQuestion"
+            //});
         }
         private void HandleSuccessfulAuth(ServerMessage message, string successMessage)
         {
@@ -43,13 +43,13 @@ namespace Ubit_Slendermena_Client
                 Wins = message.Wins
             };
             var menuForm = new MenuForm(player);
-            _client.MessageReceived-= OnServerMessage;
+            _client.MessageReceived -= OnServerMessage;
             this.Hide();
 
             menuForm.ShowDialog();
             this.Close();
         }
-        
+
 
         private void OnServerMessage(ServerMessage message)
         {
@@ -70,7 +70,7 @@ namespace Ubit_Slendermena_Client
             }
         }
 
-        private async void BtnConnect_Click(object? sender, EventArgs e)
+        private async void btnConnect_Click(object? sender, EventArgs e)
         {
             //_isConnecting = true;
 
@@ -83,13 +83,13 @@ namespace Ubit_Slendermena_Client
             //// Пересоздаем клиент
             //_client?.Disconnect();
             //_client = new GameNetworkClient();
-            
+
             //connected = await _client.ConnectAsync(serverAddress, port);
             //connected = await _client.ConnectAsync(serverAddress, port);
 
             if (!connected)
             {
-                
+
                 _isConnecting = false;
                 btnConnect.Enabled = true;
                 btnConnect.Text = "Подключиться";
@@ -115,7 +115,10 @@ namespace Ubit_Slendermena_Client
             btnConnect.Text = "Подключение...";
 
             string serverAddress = "localhost";
-            int port = 5000;    
+            int port = 5000;
+
+            connected = await _client.ConnectAsync(serverAddress, port);
+
             connected = await _client.ConnectAsync(serverAddress, port);
             //connected = await _client.ConnectAsync(serverAddress, port);
             Task.Delay(1000).Wait();

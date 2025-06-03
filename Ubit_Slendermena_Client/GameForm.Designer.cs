@@ -29,20 +29,21 @@ namespace Ubit_Slendermena_Client
         /// </summary>
         private void InitializeComponent()
         {
-            this.Text = $"Своя игра - {_currentPlayer.Username}";
-            this.Size = new Size(1400, 900);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.WindowState = FormWindowState.Maximized;
-            this.BackColor = Color.DarkBlue;
-            this.MinimumSize = new Size(1200, 800);
-
-            CreateGamePanel();
-            CreateQuestionPanel();
-            CreatePlayersPanel();
-            CreateTimer();
-
-            this.Controls.AddRange(new Control[] { _gamePanel, _questionPanel, _playersPanel });
+            SuspendLayout();
+            // 
+            // JeopardyGameForm
+            // 
+            BackColor = Color.DarkBlue;
+            BackgroundImage = Properties.Resource.bigbrain;
+            BackgroundImageLayout = ImageLayout.Stretch;
+            ClientSize = new Size(1382, 853);
+            MinimumSize = new Size(1200, 800);
+            Name = "JeopardyGameForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            WindowState = FormWindowState.Maximized;
+            ResumeLayout(false);
         }
+
         private void CreateQuestionPanel()
         {
             _questionPanel = new Panel

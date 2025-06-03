@@ -20,7 +20,6 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
 
         /// <summary>
         /// Required method for Designer support - do not modify
@@ -28,126 +27,124 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Username = new Label();
-            label2 = new Label();
             DescrLbl = new Label();
+            UsernameTxt = new TextBox();
+            PasswordTxt = new TextBox();
             ChangePasswordBtn = new Button();
             UploadImgBtn = new Button();
-            BackBtn = new Button();
             ExitBtn = new Button();
+            BackBtn = new Button();
             DeleteAccountBtn = new Button();
+            AvatarPic = new PictureBox();
+            LoginLbl = new Label();
+            PasswordLbl = new Label();
+
             SuspendLayout();
-            // 
-            // Username
-            // 
-            Username.AutoSize = true;
-            Username.BackColor = Color.White;
-            Username.Font = new Font("Segoe UI", 22.2F, FontStyle.Regular, GraphicsUnit.Point, 204);
-            Username.ForeColor = Color.FromArgb(255, 128, 0);
-            Username.Location = new Point(12, 70);
-            Username.Name = "Username";
-            Username.Size = new Size(120, 50);
-            Username.TabIndex = 0;
-            Username.Text = "label1";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.BackColor = Color.White;
-            label2.Font = new Font("Segoe UI", 22.2F, FontStyle.Regular, GraphicsUnit.Point, 204);
-            label2.ForeColor = Color.FromArgb(255, 128, 0);
-            label2.Location = new Point(12, 139);
-            label2.Name = "label2";
-            label2.Size = new Size(120, 50);
-            label2.TabIndex = 1;
-            label2.Text = "label2";
-            // 
+
             // DescrLbl
-            // 
             DescrLbl.AutoSize = true;
-            DescrLbl.BackColor = Color.Transparent;
-            DescrLbl.Font = new Font("Segoe UI", 25.8000011F, FontStyle.Regular, GraphicsUnit.Point, 204);
-            DescrLbl.ForeColor = Color.FromArgb(255, 128, 0);
-            DescrLbl.Location = new Point(12, 10);
-            DescrLbl.Name = "DescrLbl";
-            DescrLbl.Size = new Size(142, 60);
-            DescrLbl.TabIndex = 2;
-            DescrLbl.Text = "label1";
-            // 
+            DescrLbl.Font = new Font("Segoe UI", 20F, FontStyle.Bold, GraphicsUnit.Point);
+            DescrLbl.ForeColor = Color.Orange;
+            DescrLbl.Location = new Point(20, 20);
+            DescrLbl.Text = "Профиль";
+
+            // Login label
+            LoginLbl.AutoSize = true;
+            LoginLbl.ForeColor = Color.Orange;
+            LoginLbl.Location = new Point(25, 80);
+            LoginLbl.Text = "логин";
+
+            // UsernameTxt
+            UsernameTxt.Location = new Point(25, 100);
+            UsernameTxt.Size = new Size(160, 27);
+
+            // Password label
+            PasswordLbl.AutoSize = true;
+            PasswordLbl.ForeColor = Color.Orange;
+            PasswordLbl.Location = new Point(25, 140);
+            PasswordLbl.Text = "пароль";
+
+            // PasswordTxt
+            PasswordTxt.Location = new Point(25, 160);
+            PasswordTxt.Size = new Size(160, 27);
+            PasswordTxt.PasswordChar = '*';
+
+            // AvatarPic
+            AvatarPic.Location = new Point(250, 80);
+            AvatarPic.Size = new Size(128, 128);
+            AvatarPic.SizeMode = PictureBoxSizeMode.StretchImage;
+
             // ChangePasswordBtn
-            // 
-            ChangePasswordBtn.Location = new Point(12, 264);
-            ChangePasswordBtn.Name = "ChangePasswordBtn";
-            ChangePasswordBtn.Size = new Size(171, 29);
-            ChangePasswordBtn.TabIndex = 3;
-            ChangePasswordBtn.Text = "сменить пароль";
-            ChangePasswordBtn.UseVisualStyleBackColor = true;
-            // 
+            ChangePasswordBtn.Text = "СМЕНИТЬ ПАРОЛЬ";
+            ChangePasswordBtn.BackColor = Color.Yellow;
+            ChangePasswordBtn.FlatStyle = FlatStyle.Flat;
+            ChangePasswordBtn.Location = new Point(25, 210);
+            ChangePasswordBtn.Size = new Size(160, 40);
+
             // UploadImgBtn
-            // 
-            UploadImgBtn.Location = new Point(227, 264);
-            UploadImgBtn.Name = "UploadImgBtn";
-            UploadImgBtn.Size = new Size(166, 29);
-            UploadImgBtn.TabIndex = 4;
-            UploadImgBtn.Text = "загрузить аватар";
-            UploadImgBtn.UseVisualStyleBackColor = true;
-            // 
-            // BackBtn
-            // 
-            BackBtn.Location = new Point(12, 417);
-            BackBtn.Name = "BackBtn";
-            BackBtn.Size = new Size(94, 29);
-            BackBtn.TabIndex = 5;
-            BackBtn.Text = "назад";
-            BackBtn.UseVisualStyleBackColor = true;
-            // 
+            UploadImgBtn.Text = "ЗАГРУЗИТЬ АВАТАР";
+            UploadImgBtn.BackColor = Color.Yellow;
+            UploadImgBtn.FlatStyle = FlatStyle.Flat;
+            UploadImgBtn.Location = new Point(250, 210);
+            UploadImgBtn.Size = new Size(160, 40);
+
             // ExitBtn
-            // 
-            ExitBtn.Location = new Point(12, 351);
-            ExitBtn.Name = "ExitBtn";
-            ExitBtn.Size = new Size(171, 33);
-            ExitBtn.TabIndex = 6;
-            ExitBtn.Text = "выйти из аккаунта";
-            ExitBtn.UseVisualStyleBackColor = true;
-            // 
+            ExitBtn.Text = "ВЫЙТИ ИЗ АККАУНТА";
+            ExitBtn.BackColor = Color.Yellow;
+            ExitBtn.FlatStyle = FlatStyle.Flat;
+            ExitBtn.Location = new Point(25, 270);
+            ExitBtn.Size = new Size(160, 40);
+
             // DeleteAccountBtn
-            // 
-            DeleteAccountBtn.Location = new Point(227, 353);
-            DeleteAccountBtn.Name = "DeleteAccountBtn";
-            DeleteAccountBtn.Size = new Size(166, 31);
-            DeleteAccountBtn.TabIndex = 7;
-            DeleteAccountBtn.Text = "удалить аккаунт";
-            DeleteAccountBtn.UseVisualStyleBackColor = true;
-            // 
+            DeleteAccountBtn.Text = "УДАЛИТЬ АККАУНТ";
+            DeleteAccountBtn.BackColor = Color.Yellow;
+            DeleteAccountBtn.FlatStyle = FlatStyle.Flat;
+            DeleteAccountBtn.Location = new Point(250, 270);
+            DeleteAccountBtn.Size = new Size(160, 40);
+
+            // BackBtn
+            BackBtn.Text = "НАЗАД";
+            BackBtn.BackColor = Color.Yellow;
+            BackBtn.FlatStyle = FlatStyle.Flat;
+            BackBtn.Location = new Point(160, 330);
+            BackBtn.Size = new Size(120, 40);
+
             // ProfileForm
-            // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(192, 0, 0);
-            ClientSize = new Size(448, 458);
-            Controls.Add(DeleteAccountBtn);
-            Controls.Add(ExitBtn);
-            Controls.Add(BackBtn);
-            Controls.Add(UploadImgBtn);
-            Controls.Add(ChangePasswordBtn);
+            BackColor = Color.FromArgb(138, 57, 57); // бордовый
+            ClientSize = new Size(450, 400);
             Controls.Add(DescrLbl);
-            Controls.Add(label2);
-            Controls.Add(Username);
-            Name = "ProfileForm";
-            Text = "ProfileForm";
+            Controls.Add(LoginLbl);
+            Controls.Add(UsernameTxt);
+            Controls.Add(PasswordLbl);
+            Controls.Add(PasswordTxt);
+            Controls.Add(AvatarPic);
+            Controls.Add(ChangePasswordBtn);
+            Controls.Add(UploadImgBtn);
+            Controls.Add(ExitBtn);
+            Controls.Add(DeleteAccountBtn);
+            Controls.Add(BackBtn);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Профиль";
             ResumeLayout(false);
             PerformLayout();
         }
-
-        #endregion
-
-        private Label Username;
-        private Label label2;
         private Label DescrLbl;
+        private Label LoginLbl;
+        private Label PasswordLbl;
+        private TextBox UsernameTxt;
+        private TextBox PasswordTxt;
         private Button ChangePasswordBtn;
         private Button UploadImgBtn;
-        private Button BackBtn;
         private Button ExitBtn;
         private Button DeleteAccountBtn;
+        private Button BackBtn;
+        private PictureBox AvatarPic;
+
+
     }
 }

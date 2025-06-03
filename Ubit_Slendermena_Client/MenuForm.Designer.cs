@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MenuForm));
             PlayBtn = new Button();
             ProfileBtn = new Button();
             LocalizationBtn = new Button();
@@ -37,70 +38,53 @@
             // 
             // PlayBtn
             // 
-            PlayBtn.Location = new Point(197, 231);
+            PlayBtn.BackColor = Color.Yellow;
+            resources.ApplyResources(PlayBtn, "PlayBtn");
             PlayBtn.Name = "PlayBtn";
-            PlayBtn.Size = new Size(231, 56);
-            PlayBtn.TabIndex = 0;
-            PlayBtn.Text = "Играть";
-            PlayBtn.UseVisualStyleBackColor = true;
+            PlayBtn.UseVisualStyleBackColor = false;
             PlayBtn.Click += PlayBtn_Click;
             // 
             // ProfileBtn
             // 
-            ProfileBtn.Location = new Point(197, 293);
+            ProfileBtn.BackColor = Color.Yellow;
+            resources.ApplyResources(ProfileBtn, "ProfileBtn");
             ProfileBtn.Name = "ProfileBtn";
-            ProfileBtn.Size = new Size(231, 50);
-            ProfileBtn.TabIndex = 1;
-            ProfileBtn.Text = "Профиль";
-            ProfileBtn.UseVisualStyleBackColor = true;
+            ProfileBtn.UseVisualStyleBackColor = false;
             ProfileBtn.Click += ProfileBtn_Click;
             // 
             // LocalizationBtn
             // 
-            LocalizationBtn.Location = new Point(197, 349);
+            LocalizationBtn.BackColor = Color.Yellow;
+            resources.ApplyResources(LocalizationBtn, "LocalizationBtn");
             LocalizationBtn.Name = "LocalizationBtn";
-            LocalizationBtn.Size = new Size(231, 47);
-            LocalizationBtn.TabIndex = 2;
-            LocalizationBtn.Text = "Локализация";
-            LocalizationBtn.UseVisualStyleBackColor = true;
+            LocalizationBtn.UseVisualStyleBackColor = false;
             LocalizationBtn.Click += LocalizationBtn_Click;
             // 
             // ExitBtn
             // 
-            ExitBtn.Location = new Point(197, 402);
+            ExitBtn.BackColor = Color.Yellow;
+            resources.ApplyResources(ExitBtn, "ExitBtn");
             ExitBtn.Name = "ExitBtn";
-            ExitBtn.Size = new Size(231, 53);
-            ExitBtn.TabIndex = 3;
-            ExitBtn.Text = "Выйти из игры";
-            ExitBtn.UseVisualStyleBackColor = true;
+            ExitBtn.UseVisualStyleBackColor = false;
             // 
             // titleLbl
             // 
-            titleLbl.AutoSize = true;
+            resources.ApplyResources(titleLbl, "titleLbl");
             titleLbl.BackColor = Color.Transparent;
-            titleLbl.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point, 204);
-            titleLbl.ForeColor = Color.Transparent;
-            titleLbl.ImageAlign = ContentAlignment.TopRight;
-            titleLbl.Location = new Point(180, 159);
+            titleLbl.ForeColor = Color.Red;
             titleLbl.Name = "titleLbl";
-            titleLbl.Size = new Size(260, 41);
-            titleLbl.TabIndex = 4;
-            titleLbl.Text = "СВОЯ СВОЯ ИГРА";
             // 
             // MenuForm
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImage = Properties.Resource.menufback;
-            BackgroundImageLayout = ImageLayout.Stretch;
-            ClientSize = new Size(627, 501);
             Controls.Add(titleLbl);
             Controls.Add(ExitBtn);
             Controls.Add(LocalizationBtn);
             Controls.Add(ProfileBtn);
             Controls.Add(PlayBtn);
             Name = "MenuForm";
-            Text = "   ";
             ResumeLayout(false);
             PerformLayout();
         }

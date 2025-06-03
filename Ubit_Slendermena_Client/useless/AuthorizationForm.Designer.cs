@@ -35,6 +35,7 @@ namespace Ubit_Slendermena_Client
             AuthorizationLabel = new Label();
             btnConnect = new Button();
             btnAddRoom = new RoundButton();
+            GameTitleLabel = new Label();
             SuspendLayout();
             // 
             // AuthorizationTxt
@@ -46,38 +47,50 @@ namespace Ubit_Slendermena_Client
             // 
             resources.ApplyResources(PassswordTxt, "PassswordTxt");
             PassswordTxt.Name = "PassswordTxt";
+            PassswordTxt.UseSystemPasswordChar = true;
             // 
             // AuthorizationLabel
             // 
             resources.ApplyResources(AuthorizationLabel, "AuthorizationLabel");
             AuthorizationLabel.BackColor = Color.Transparent;
+            AuthorizationLabel.ForeColor = Color.Orange;
             AuthorizationLabel.Name = "AuthorizationLabel";
             // 
             // btnConnect
             // 
             resources.ApplyResources(btnConnect, "btnConnect");
+            btnConnect.BackColor = Color.Yellow;
             btnConnect.Name = "btnConnect";
-            btnConnect.UseVisualStyleBackColor = true;
-            btnConnect.Click += BtnConnect_Click;
+            btnConnect.UseVisualStyleBackColor = false;
             // 
             // btnAddRoom
             // 
+
+            SetStyle(ControlStyles.Selectable, false);
             resources.ApplyResources(btnAddRoom, "btnAddRoom");
             btnAddRoom.BackColor = Color.FromArgb(60, 60, 100);
             btnAddRoom.BorderColor = Color.Transparent;
-            btnAddRoom.BorderRadius = 15;
+            btnAddRoom.BorderRadius = 10;
             btnAddRoom.ForeColor = Color.FromArgb(243, 200, 220);
-            btnAddRoom.HoverColor = Color.FromArgb(213, 140, 176);
+            btnAddRoom.HoverColor = Color.Transparent;
             btnAddRoom.Name = "btnAddRoom";
             btnAddRoom.PressColor = Color.FromArgb(132, 49, 90);
             btnAddRoom.PressDepth = 0.15F;
-            btnAddRoom.UseVisualStyleBackColor = false;
+            btnAddRoom.UseVisualStyleBackColor = true;
             btnAddRoom.Click += btnAddRoom_Click;
+            // 
+            // GameTitleLabel
+            // 
+            resources.ApplyResources(GameTitleLabel, "GameTitleLabel");
+            GameTitleLabel.BackColor = Color.Transparent;
+            GameTitleLabel.ForeColor = Color.Red;
+            GameTitleLabel.Name = "GameTitleLabel";
             // 
             // AuthorizationForm
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(GameTitleLabel);
             Controls.Add(btnConnect);
             Controls.Add(btnAddRoom);
             Controls.Add(AuthorizationLabel);
@@ -96,5 +109,6 @@ namespace Ubit_Slendermena_Client
         private Label AuthorizationLabel;
         private Button btnConnect;
         private RoundButton btnAddRoom;
+        private Label GameTitleLabel;
     }
 }

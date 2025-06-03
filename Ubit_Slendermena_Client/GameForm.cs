@@ -411,8 +411,8 @@ namespace Ubit_Slendermena_Client
 
         private void ShowGameBoard()
         {
-            _gamePanel.Visible = true;
-            _questionPanel.Visible = false;
+            //_gamePanel.Visible = true;
+            //_questionPanel.Visible = false;
         }
 
         private void ShowQuestionView()

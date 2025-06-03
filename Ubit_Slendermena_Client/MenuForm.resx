@@ -117,4 +117,184 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="PlayBtn.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="PlayBtn.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 10pt, style=Bold</value>
+  </data>
+  <data name="PlayBtn.Location" type="System.Drawing.Point, System.Drawing">
+    <value>200, 200</value>
+  </data>
+  <data name="PlayBtn.Size" type="System.Drawing.Size, System.Drawing">
+    <value>230, 45</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="PlayBtn.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="PlayBtn.Text" xml:space="preserve">
+    <value>ИГРАТЬ</value>
+  </data>
+  <data name="&gt;&gt;PlayBtn.Name" xml:space="preserve">
+    <value>PlayBtn</value>
+  </data>
+  <data name="&gt;&gt;PlayBtn.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;PlayBtn.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;PlayBtn.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="ProfileBtn.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="ProfileBtn.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 10pt, style=Bold</value>
+  </data>
+  <data name="ProfileBtn.Location" type="System.Drawing.Point, System.Drawing">
+    <value>200, 255</value>
+  </data>
+  <data name="ProfileBtn.Size" type="System.Drawing.Size, System.Drawing">
+    <value>230, 45</value>
+  </data>
+  <data name="ProfileBtn.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="ProfileBtn.Text" xml:space="preserve">
+    <value>ПРОФИЛЬ</value>
+  </data>
+  <data name="&gt;&gt;ProfileBtn.Name" xml:space="preserve">
+    <value>ProfileBtn</value>
+  </data>
+  <data name="&gt;&gt;ProfileBtn.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;ProfileBtn.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ProfileBtn.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="LocalizationBtn.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="LocalizationBtn.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 10pt, style=Bold</value>
+  </data>
+  <data name="LocalizationBtn.Location" type="System.Drawing.Point, System.Drawing">
+    <value>200, 310</value>
+  </data>
+  <data name="LocalizationBtn.Size" type="System.Drawing.Size, System.Drawing">
+    <value>230, 45</value>
+  </data>
+  <data name="LocalizationBtn.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="LocalizationBtn.Text" xml:space="preserve">
+    <value>ЛОКАЛИЗАЦИЯ</value>
+  </data>
+  <data name="&gt;&gt;LocalizationBtn.Name" xml:space="preserve">
+    <value>LocalizationBtn</value>
+  </data>
+  <data name="&gt;&gt;LocalizationBtn.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;LocalizationBtn.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;LocalizationBtn.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ExitBtn.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="ExitBtn.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 10pt, style=Bold</value>
+  </data>
+  <data name="ExitBtn.Location" type="System.Drawing.Point, System.Drawing">
+    <value>200, 365</value>
+  </data>
+  <data name="ExitBtn.Size" type="System.Drawing.Size, System.Drawing">
+    <value>230, 45</value>
+  </data>
+  <data name="ExitBtn.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="ExitBtn.Text" xml:space="preserve">
+    <value>ВЫЙТИ ИЗ ИГРЫ</value>
+  </data>
+  <data name="&gt;&gt;ExitBtn.Name" xml:space="preserve">
+    <value>ExitBtn</value>
+  </data>
+  <data name="&gt;&gt;ExitBtn.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;ExitBtn.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ExitBtn.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="titleLbl.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="titleLbl.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 20pt, style=Bold</value>
+  </data>
+  <data name="titleLbl.Location" type="System.Drawing.Point, System.Drawing">
+    <value>143, 9</value>
+  </data>
+  <data name="titleLbl.Size" type="System.Drawing.Size, System.Drawing">
+    <value>307, 46</value>
+  </data>
+  <data name="titleLbl.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="titleLbl.Text" xml:space="preserve">
+    <value>СВОЯ СВОЯ ИГРА</value>
+  </data>
+  <data name="titleLbl.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleCenter</value>
+  </data>
+  <data name="&gt;&gt;titleLbl.Name" xml:space="preserve">
+    <value>titleLbl</value>
+  </data>
+  <data name="&gt;&gt;titleLbl.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;titleLbl.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;titleLbl.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Language" type="System.Globalization.CultureInfo, System.Private.CoreLib, Culture=neutral, PublicKeyToken=7cec85d7bea7798e">
+    <value>agq-CM</value>
+  </metadata>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>8, 20</value>
+  </data>
+  <data name="$this.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Stretch</value>
+  </data>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>627, 501</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>   </value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>MenuForm</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Form, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

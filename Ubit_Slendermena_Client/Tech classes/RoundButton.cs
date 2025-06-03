@@ -94,10 +94,10 @@ namespace Ubit_Slendermena_Client.Technical
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            e.Graphics.Clear(Parent.BackColor);
+            //e.Graphics.Clear(Parent.BackColor);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
+            Region = new Region(GetRoundRectangle(ClientRectangle, BorderRadius));
             _currentColor = _isPressed ? PressColor :
                           _isHovered ? HoverColor : BackColor;
 

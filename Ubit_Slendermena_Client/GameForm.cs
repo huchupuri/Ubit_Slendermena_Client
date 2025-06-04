@@ -4,11 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GameClient;
-using Ubit_Slendermena_Client;
 
 namespace Ubit_Slendermena_Client
 {
@@ -17,48 +14,26 @@ namespace Ubit_Slendermena_Client
         private readonly GameClient.Network.GameClient _networkClient;
         private readonly Player _currentPlayer;
 
-        // Игровое поле
-
-
+        // Игровые данные
         private List<Category> _categories = new();
         private List<Player> _players = new();
         private Question _currentQuestion;
         private bool[,] _answeredQuestions = new bool[6, 5];
         private bool _canAnswer = true;
-        private int _timeLeft = 30;
-        private bool _isMyTurn = false;
+        private int _timeLeft = 60;
+        private bool _isMyTurn = true;
 
         public JeopardyGameForm(Player currentPlayer, GameClient.Network.GameClient client)
         {
-            //_networkClient = networkClient;
             _currentPlayer = currentPlayer;
             _networkClient = client;
             InitializeComponent();
             SubscribeToEvents();
-            ShowGameBoard();
-        }
-        private void OnServerMessage(object sender, ServerMessage serverMessage)
-        {
-            if (InvokeRequired)
+
+            if (!_networkClient.IsConnected)
             {
-                Invoke(new Action<object, ServerMessage>(OnServerMessage), sender, serverMessage);
+                this.Close();
                 return;
-            }
-            switch (serverMessage.Type)
-            {
-                case "LoginSuccess":
-                    break;
-
-                case "RegisterSuccess":
-                    break;
-
-                case "Question":
-                    MessageBox.Show(serverMessage.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    _networkClient.MessageReceived -= OnServerMessage;
-                    var questionForm = new QuestionForm(serverMessage.Message, _networkClient);
-                    questionForm.ShowDialog();
-                    break;
-                default: MessageBox.Show(serverMessage.Type, "Получено11", MessageBoxButtons.OK, MessageBoxIcon.Information); break;
             }
         }
 
@@ -68,237 +43,170 @@ namespace Ubit_Slendermena_Client
             {
                 _networkClient.MessageReceived += OnServerMessage;
                 _networkClient.ConnectionClosed += OnConnectionClosed;
-                //_networkClient.ErrorOccurred += OnErrorOccurred;
+                _networkClient.ErrorOccurred += OnErrorOccurred;
             }
         }
-        private void OnConnectionClosed(object sender, string reason)
+
+        private void UnsubscribeFromEvents()
+        {
+            if (_networkClient != null)
+            {
+                _networkClient.MessageReceived -= OnServerMessage;
+                _networkClient.ConnectionClosed -= OnConnectionClosed;
+                _networkClient.ErrorOccurred -= OnErrorOccurred;
+            }
+        }
+
+        private void OnServerMessage(object sender, ServerMessage serverMessage)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<object, string>(OnConnectionClosed), sender, reason);
+                Invoke(new Action<object, ServerMessage>(OnServerMessage), sender, serverMessage);
                 return;
             }
 
-            MessageBox.Show($"Соединение потеряно: {reason}", "Ошибка",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-            // Возвращаемся к предыдущей форме или закрываем
-            this.Close();
-        }
-
-        private void OnErrorOccurred(object sender, Exception ex)
-        {
-            if (InvokeRequired)
+            try
             {
-                Invoke(new Action<object, Exception>(OnErrorOccurred), sender, ex);
-                return;
+                Console.WriteLine($"JeopardyGameForm получил сообщение: {serverMessage.Type}");
+
+                switch (serverMessage.Type)
+                {
+                    case "GameData":
+                        LoadGameData(serverMessage);
+                        break;
+
+                    case "Question":
+                        
+                        HandleQuestionReceived(serverMessage);
+                        break;
+
+                    case "AnswerResult":
+                        HandleAnswerResult(serverMessage);
+                        break;
+
+                    case "QuestionCompleted":
+                        HandleQuestionCompleted(serverMessage);
+                        break;
+
+                    case "QuestionTimeout":
+                        HandleQuestionTimeout(serverMessage);
+                        break;
+
+                    case "GameOver":
+                        HandleGameOver(serverMessage);
+                        break;
+
+                    case "Error":
+                        UpdateGameStatus($"❌ Ошибка: {serverMessage.Message}", Color.Red);
+                        break;
+
+                    default:
+                        Console.WriteLine($"Неизвестное сообщение: {serverMessage.Type}");
+                        break;
+                }
             }
-
-            MessageBox.Show($"Ошибка соединения: {ex.Message}", "Ошибка",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-        private async void QuestionButton_Click(object sender, EventArgs e)
-        {
-
-            var button = sender as Button;
-            var tag = button?.Tag as dynamic;
-
-            if (tag == null) return;
-
-            int categoryIndex = tag.CategoryIndex;
-            int questionIndex = tag.QuestionIndex;
-
-            // Проверяем, не отвечен ли уже этот вопрос
-            if (_answeredQuestions[categoryIndex, questionIndex])
+            catch (Exception ex)
             {
-                UpdateGameStatus("❌ Этот вопрос уже был отвечен!", Color.Red);
-                return;
-            }
-            button.Enabled = false;
-            button.BackColor = Color.Gray;
-            button.Text = "...";
-
-            // Отправляем запрос на сервер
-            int categoryId = categoryIndex + 1; // ID категории (1-based)
-            int price = (questionIndex + 1) * 100; // Цена вопроса
-
-            //// Пересоздаем клиент
-            //_client?.Disconnect();
-            //_client = new GameNetworkClient();
-            await _networkClient.SendMessageAsync(new
-            {
-                Type = "SelectQuestion",
-                CategoryId = categoryId,
-                PlayerId = _currentPlayer.Id
-            });
-
-            UpdateGameStatus("📤 Вопрос выбран, ожидание от сервера...", Color.Orange);
-        }
-
-        private async void SubmitAnswerButton_Click(object sender, EventArgs e)
-        {
-            await SubmitAnswer();
-        }
-
-        private void AnswerTextBox_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char)Keys.Enter)
-            {
-                e.Handled = true;
-                _ = SubmitAnswer();
+                MessageBox.Show($"Ошибка обработки сообщения: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private async Task SubmitAnswer()
+        private void HandleQuestionReceived(ServerMessage serverMessage)
         {
-            if (_currentQuestion == null || string.IsNullOrWhiteSpace(_answerTextBox.Text) || !_canAnswer)
-                return;
-
-            string answer = _answerTextBox.Text.Trim();
-
-            // Отключаем возможность отвечать
-            _answerTextBox.Enabled = false;
-            _submitAnswerButton.Enabled = false;
-            _canAnswer = false;
-            _questionTimer.Stop();
-
-            // Отправляем ответ на сервер
-            await _networkClient.SendMessageAsync(new
+            try
             {
-                Type = "SubmitAnswer",
-                QuestionId = _currentQuestion.Id,
-                Answer = answer,
-                PlayerId = _currentPlayer.Id
-            });
+                if (serverMessage.Question != null)
+                {
+                    var question = new Question
+                    {
+                        Id = serverMessage.Question.Id,
+                        Text = serverMessage.Question.Text,
+                        Price = serverMessage.Question.Price,
+                        CategoryId = serverMessage.Question.CategoryId,
+                        CategoryName = serverMessage.Question.CategoryName
+                    };
 
-            UpdateGameStatus("📤 Ответ отправлен. Ожидание результата...", Color.Orange);
+                    // Показываем вопрос в отдельной форме
+                    ShowQuestionInForm(question);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка",
+ MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Fallback для старого формата
+                if (!string.IsNullOrEmpty(serverMessage.Message))
+                {
+                    var question = new Question
+                    {
+                        Id = serverMessage.QuestionId,
+                        Text = serverMessage.Message,
+                        Price = 100,
+                        CategoryName = "Категория"
+                    };
+                    ShowQuestionInForm(question);
+                }
+            }
+        }
+
+        private void ShowQuestionInForm(Question question)
+        {
+            _currentQuestion = question;
+            
+            // Создаем и показываем форму вопроса
+            var questionForm = new QuestionForm(question, _networkClient, _currentPlayer);
+            //this.Hide();
+            questionForm.Show(); // Модальное окно
         }
 
         private void LoadGameData(ServerMessage message)
         {
-            _categories = message.Categories;
-            _players = message.Players;
-
-            // Обновляем заголовки категорий
-            for (int i = 0; i < Math.Min(_categories.Count, 6); i++)
+            if (message.Categories?.Any() == true)
             {
-                _gameButtons[i, 0].Text = _categories[i].Name;
-            }
+                _categories = message.Categories;
 
-            UpdatePlayersList();
-            UpdateGameStatus("✅ Данные игры загружены", Color.Green);
-        }
-
-        private void HandlePlayerTurn(ServerMessage message)
-        {
-            _isMyTurn = message.Id == _currentPlayer.Id;
-
-            if (_isMyTurn)
-            {
-                UpdateGameStatus("🎯 Ваш ход! Выберите вопрос.", Color.Green);
-                EnableQuestionButtons(true);
-            }
-            else
-            {
-                var currentPlayer = _players.FirstOrDefault(p => p.Id == message.Id);
-                string playerName = currentPlayer?.Username ?? "Неизвестный игрок";
-                UpdateGameStatus($"⏳ Ход игрока: {playerName}", Color.Orange);
-                EnableQuestionButtons(false);
-            }
-        }
-
-        private void ShowQuestion(Question question)
-        {
-            if (question == null) return;
-
-            _currentQuestion = question;
-            _canAnswer = true;
-
-            // Заполняем данные вопроса
-            _questionCategoryLabel.Text = question.CategoryName.ToUpper();
-            _questionPriceLabel.Text = $"💰 {question.Price} ОЧКОВ";
-            _questionTextLabel.Text = question.Text;
-
-            // Сбрасываем поле ответа
-            _answerTextBox.Text = "";
-            _answerTextBox.Enabled = true;
-            _submitAnswerButton.Enabled = true;
-            _answerTextBox.Focus();
-
-            // Запускаем таймер
-            _timeLeft = 30;
-            _timerLabel.Text = $"⏰ {_timeLeft}";
-            _timerLabel.ForeColor = Color.Yellow;
-            _questionTimer.Start();
-
-            // Переключаемся на экран вопроса
-            ShowQuestionView();
-
-            UpdateGameStatus("⏰ Время отвечать! У вас 30 секунд.", Color.Blue);
-        }
-
-        private void HandleCorrectAnswer(ServerMessage message)
-        {
-            _questionTimer.Stop();
-            _canAnswer = false;
-
-            if (message.Id == _currentPlayer.Id)
-            {
-                // Мой правильный ответ
-                _currentPlayer.CurrentScore = message.NewScore;
-                UpdateGameStatus($"✅ Правильно! +{_currentQuestion?.Price} очков", Color.Green);
-
-                // Показываем сообщение
-                MessageBox.Show($"🎉 Правильный ответ!\n\nВаш счет: {_currentPlayer.CurrentScore} очков",
-                    "Отлично!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                var player = _players.FirstOrDefault(p => p.Id == message.Id);
-                if (player != null)
+                // Обновляем заголовки категорий
+                for (int i = 0; i < Math.Min(_categories.Count, 6); i++)
                 {
-                    player.CurrentScore = message.NewScore;
-                    UpdateGameStatus($"✅ {player.Username} ответил правильно! (+{_currentQuestion?.Price} очков)", Color.Green);
+                    _gameButtons[i, 0].Text = _categories[i].Name;
                 }
             }
 
-            UpdatePlayersList();
+            if (message.Players?.Any() == true)
+            {
+                _players = message.Players;
+                UpdatePlayersList();
+            }
+
+            UpdateGameStatus("✅ Игра началась! Выберите вопрос.", Color.Green);
         }
 
-        private void HandleIncorrectAnswer(ServerMessage message)
+        private void HandleAnswerResult(ServerMessage message)
         {
-            if (message.Id == _currentPlayer.Id)
+            string playerName = message.PlayerName ?? "Неизвестный игрок";
+
+            if (message.IsCorrect)
             {
-                // Мой неправильный ответ
-                _currentPlayer.CurrentScore = message.NewScore;
-                _canAnswer = false; // Запрещаем отвечать дальше
-                _answerTextBox.Enabled = false;
-                _submitAnswerButton.Enabled = false;
-                _questionTimer.Stop();
-
-                UpdateGameStatus($"❌ Неправильно! -{_currentQuestion?.Price} очков. Правильный ответ: {message.CorrectAnswer}", Color.Red);
-
-                // Показываем сообщение
-                MessageBox.Show($"❌ Неправильный ответ!\n\nПравильный ответ: {message.CorrectAnswer}\nВаш счет: {_currentPlayer.CurrentScore} очков",
-                    "Неправильно", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                UpdateGameStatus($"✅ {playerName} ответил правильно! (+{_currentQuestion?.Price} очков)", Color.Green);
             }
             else
             {
-                var player = _players.FirstOrDefault(p => p.Id == message.Id);
-                if (player != null)
-                {
-                    player.CurrentScore = message.NewScore;
-                    UpdateGameStatus($"❌ {player.Username} ответил неправильно (-{_currentQuestion?.Price} очков)", Color.Red);
-                }
+                UpdateGameStatus($"❌ {playerName} ответил неправильно (-{_currentQuestion?.Price} очков)", Color.Red);
             }
 
-            UpdatePlayersList();
+            // Обновляем счет игрока
+            var player = _players.FirstOrDefault(p => p.Id == message.Id);
+            if (player != null)
+            {
+                player.Score = message.NewScore;
+                UpdatePlayersList();
+            }
         }
 
         private void HandleQuestionCompleted(ServerMessage message)
         {
-            _questionTimer.Stop();
-
             if (_currentQuestion != null)
             {
                 // Отмечаем вопрос как отвеченный
@@ -318,44 +226,16 @@ namespace Ubit_Slendermena_Client
                 }
             }
 
-            UpdateGameStatus("✅ Вопрос завершен.", Color.Green);
-
-            // Возвращаемся к игровому полю через 3 секунды
-            var returnTimer = new System.Windows.Forms.Timer { Interval = 3000 };
-            returnTimer.Tick += (s, e) =>
-            {
-                returnTimer.Stop();
-                ShowGameBoard();
-            };
-            returnTimer.Start();
+            UpdateGameStatus("✅ Вопрос завершен. Выберите следующий вопрос.", Color.Green);
         }
 
-        private void HandlePlayerJoined(ServerMessage message)
+        private void HandleQuestionTimeout(ServerMessage message)
         {
-            if (message.Player != null)
-            {
-                _players.Add(message.Player);
-                UpdatePlayersList();
-                UpdateGameStatus($"🎉 {message.Player.Username} присоединился к игре", Color.Blue);
-            }
-        }
-
-        private void HandlePlayerLeft(ServerMessage message)
-        {
-            var player = _players.FirstOrDefault(p => p.Username == message.Username);
-            if (player != null)
-            {
-                _players.Remove(player);
-                UpdatePlayersList();
-                UpdateGameStatus($"👋 {message.Username} покинул игру", Color.Orange);
-            }
+            UpdateGameStatus($"⏰ Время вышло! Правильный ответ: {message.CorrectAnswer}", Color.Red);
         }
 
         private void HandleGameOver(ServerMessage message)
         {
-            _questionTimer.Stop();
-            ShowGameBoard();
-
             string winnerText = message.Winner != null
                 ? $"🏆 Победитель: {message.Winner.Username}!"
                 : "🎮 Игра окончена!";
@@ -363,30 +243,87 @@ namespace Ubit_Slendermena_Client
             UpdateGameStatus($"🎊 Игра завершена! {winnerText}", Color.Purple);
 
             // Показываем результаты
-            if (message.Players.Any())
+            if (message.Players?.Any() == true)
             {
                 string results = "📊 ИТОГОВЫЕ РЕЗУЛЬТАТЫ:\n\n";
-                var sortedPlayers = message.Players.OrderByDescending(p => p.CurrentScore).ToList();
+                var sortedPlayers = message.Players.OrderByDescending(p => p.Score).ToList();
 
                 for (int i = 0; i < sortedPlayers.Count; i++)
                 {
                     var player = sortedPlayers[i];
                     string medal = i == 0 ? "🥇" : i == 1 ? "🥈" : i == 2 ? "🥉" : "🏅";
-                    results += $"{medal} {i + 1}. {player.Username}: {player.CurrentScore} очков\n";
+                    results += $"{medal} {i + 1}. {player.Username}: {player.Score} очков\n";
                 }
 
                 MessageBox.Show(results, "🎉 Игра завершена!", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
-            _players = message.Players;
-            UpdatePlayersList();
+            // Возвращаемся в меню через 5 секунд
+            var exitTimer = new System.Windows.Forms.Timer { Interval = 5000 };
+            exitTimer.Tick += (s, e) =>
+            {
+                exitTimer.Stop();
+                UnsubscribeFromEvents();
+                this.Close();
+            };
+            exitTimer.Start();
+        }
+
+        private async void QuestionButton_Click(object sender, EventArgs e)
+        {
+            if (!_networkClient.IsConnected)
+            {
+                MessageBox.Show("Нет соединения с сервером!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var button = sender as Button;
+            var tag = button?.Tag as dynamic;
+
+            if (tag == null) return;
+
+            int categoryIndex = tag.CategoryIndex;
+            int questionIndex = tag.QuestionIndex;
+
+            if (_answeredQuestions[categoryIndex, questionIndex])
+            {
+                UpdateGameStatus("❌ Этот вопрос уже был отвечен!", Color.Red);
+                return;
+            }
+
+            button.Enabled = false;
+            button.BackColor = Color.Gray;
+            button.Text = "...";
+
+            try
+            {
+                int categoryId = categoryIndex + 1;
+
+                await _networkClient.SendMessageAsync(new
+                {
+                    Type = "SelectQuestion",
+                    CategoryId = categoryId,
+                    PlayerId = _currentPlayer.Id
+                });
+
+                UpdateGameStatus("📤 Вопрос выбран, ожидание от сервера...", Color.Orange);
+            }
+            catch (Exception ex)
+            {
+                UpdateGameStatus($"❌ Ошибка отправки: {ex.Message}", Color.Red);
+
+                button.Enabled = true;
+                button.BackColor = Color.Blue;
+                button.Text = $"{(questionIndex + 1) * 100}";
+            }
         }
 
         private void UpdatePlayersList()
         {
             _playersListBox.Items.Clear();
 
-            var sortedPlayers = _players.OrderByDescending(p => p.CurrentScore).ToList();
+            var sortedPlayers = _players.OrderByDescending(p => p.Score).ToList();
 
             for (int i = 0; i < sortedPlayers.Count; i++)
             {
@@ -399,61 +336,52 @@ namespace Ubit_Slendermena_Client
                     playerInfo += " (ВЫ)";
                 }
 
-                playerInfo += $"\n    💰 {player.CurrentScore} очков";
+                playerInfo += $"\n    💰 {player.Score} очков";
                 playerInfo += $"\n    🏆 Побед: {player.Wins}/{player.TotalGames}";
 
                 _playersListBox.Items.Add(playerInfo);
             }
         }
 
-        private void EnableQuestionButtons(bool enabled)
+        private void UpdateGameStatus(string message, Color color)
         {
-            for (int col = 0; col < 6; col++)
+            if (_gameStatusLabel != null)
             {
-                for (int row = 1; row < 6; row++) // Пропускаем заголовки (row 0)
-                {
-                    var button = _gameButtons[col, row];
-                    if (!_answeredQuestions[col, row - 1]) // row - 1 для индекса массива
-                    {
-                        button.Enabled = enabled;
-                        if (enabled)
-                        {
-                            button.BackColor = Color.Blue;
-                            button.ForeColor = Color.White;
-                        }
-                        else
-                        {
-                            button.BackColor = Color.DarkBlue;
-                            button.ForeColor = Color.LightGray;
-                        }
-                    }
-                }
+                _gameStatusLabel.Text = message;
+                _gameStatusLabel.ForeColor = color;
             }
         }
 
-        private void ShowGameBoard()
+        private void OnConnectionClosed(object sender, string reason)
         {
-            //_gamePanel.Visible = true;
-            //_questionPanel.Visible = false;
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, string>(OnConnectionClosed), sender, reason);
+                return;
+            }
+
+            MessageBox.Show($"Соединение потеряно: {reason}", "Ошибка",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+            UnsubscribeFromEvents();
+            this.Close();
         }
 
-        private void ShowQuestionView()
+        private void OnErrorOccurred(object sender, Exception ex)
         {
-            _gamePanel.Visible = false;
-            _questionPanel.Visible = true;
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, Exception>(OnErrorOccurred), sender, ex);
+                return;
+            }
+
+            UpdateGameStatus($"❌ Ошибка соединения: {ex.Message}", Color.Red);
         }
 
-        private void UpdateGameStatus(string message, Color color)
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
-
-        }
-
-
-
-        private void JeopardyGameForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            _questionTimer?.Stop();
-             //_networkClient?.Disconnect();
+            UnsubscribeFromEvents();
+            base.OnFormClosing(e);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Ubit_Slendermena_Client
             _client = client;
 
             InitializeComponent();
-            SubscribeToClientEvents();
+            //SubscribeToClientEvents();
         }
 
         private void SubscribeToClientEvents()

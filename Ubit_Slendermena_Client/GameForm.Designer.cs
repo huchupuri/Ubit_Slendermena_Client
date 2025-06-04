@@ -17,7 +17,7 @@ namespace Ubit_Slendermena_Client
             if (disposing && (components != null))
             {
                 components.Dispose();
-            } 
+            }
             base.Dispose(disposing);
         }
 
@@ -107,31 +107,7 @@ namespace Ubit_Slendermena_Client
                 ForeColor = Color.White
             };
 
-            _answerTextBox = new TextBox
-            {
-                Location = new Point(20, 470),
-                Size = new Size(600, 40),
-                Font = new Font("Arial", 16),
-                Enabled = false,
-                BackColor = Color.White,
-                ForeColor = Color.Black
-            };
-            _answerTextBox.KeyPress += AnswerTextBox_KeyPress;
-
-            _submitAnswerButton = new Button
-            {
-                Text = "✅ Ответить",
-                Location = new Point(640, 470),
-                Size = new Size(120, 40),
-                BackColor = Color.Green,
-                ForeColor = Color.White,
-                Font = new Font("Arial", 12, FontStyle.Bold),
-                FlatStyle = FlatStyle.Flat,
-                Enabled = false
-            };
-            _submitAnswerButton.FlatAppearance.BorderColor = Color.LightGreen;
-            _submitAnswerButton.Click += SubmitAnswerButton_Click;
-
+           
             // Таймер
             _timerLabel = new Label
             {
@@ -145,22 +121,11 @@ namespace Ubit_Slendermena_Client
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            // Кнопка возврата
-            var backButton = new Button
-            {
-                Text = "🔙 К игровому полю",
-                Location = new Point(20, 530),
-                Size = new Size(180, 40),
-                BackColor = Color.DarkGray,
-                ForeColor = Color.White,
-                Font = new Font("Arial", 10, FontStyle.Bold),
-                FlatStyle = FlatStyle.Flat
-            };
-            backButton.Click += (s, e) => ShowGameBoard();
+           
 
             _questionPanel.Controls.AddRange(new Control[] {
                 _questionCategoryLabel, _questionPriceLabel, _questionTextLabel,
-                answerLabel, _answerTextBox, _submitAnswerButton, _timerLabel, backButton
+                answerLabel, _answerTextBox, _submitAnswerButton, _timerLabel
             });
         }
 

@@ -26,6 +26,7 @@ namespace GameClient.Models
         public int TotalGames { get; set; }
         public int Wins { get; set; }
         public int TotalScore { get; set; }
+        public string PlayerName { get; set; }    
         public static ServerMessage FromJson(string json)
         {
             try

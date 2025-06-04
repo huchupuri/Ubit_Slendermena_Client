@@ -40,10 +40,10 @@ namespace Ubit_Slendermena_Client
 
         private void OpenGameForm()
         {
-            // Отписываемся от событий перед передачей клиента
-            //UnsubscribeFromEvents();
+            // Отписываемся от событий перед передачей клиентаa
+            UnsubscribeFromEvents();
             var gameForm = new JeopardyGameForm(_player, _networkClient);
-            this.Hide();
+            //this.Hide();
             gameForm.Show();
             //this.Close();
         }
@@ -112,8 +112,6 @@ namespace Ubit_Slendermena_Client
                 switch (message.Type)
                 {
                     case "GameStarted":
-                        MessageBox.Show("Игра началась!", "Успех",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                         OpenGameForm();
                         break;

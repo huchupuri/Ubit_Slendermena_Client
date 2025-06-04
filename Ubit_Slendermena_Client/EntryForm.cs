@@ -65,7 +65,6 @@ namespace Ubit_Slendermena_Client
                     Wins = message.Wins
                 };
 
-                // ВАЖНО: Отписываемся от событий ПЕРЕД передачей клиента
                 UnsubscribeFromEvents();
 
                 // Передаем клиент в MenuForm для дальнейшего использования
@@ -111,7 +110,7 @@ namespace Ubit_Slendermena_Client
                     case "RegisterSuccess":
                         HandleSuccessfulAuth(serverMessage, "Регистрация выполнена успешно!");
                         break;
-
+                        
                     case "Error":
                         MessageBox.Show($"Ошибка сервера: {serverMessage.Message}", "Ошибка",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);

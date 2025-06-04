@@ -12,6 +12,7 @@ namespace GameClient.Network
         private bool _isConnected;
         private CancellationTokenSource _cts;
 
+
         public event EventHandler<ServerMessage> MessageReceived;
         public event EventHandler<string> ConnectionClosed;
         public event EventHandler<Exception> ErrorOccurred;
@@ -54,7 +55,7 @@ namespace GameClient.Network
         public async Task SendMessageAsync(object message)
         {
             if (!IsConnected)
-                throw new InvalidOperationException("Клиент не подключен к серверу");
+                throw new InvalidOperationException($"Клиент {_isConnected}, {_webSocket?.State} не подключен к серверу");
 
             try
             {
@@ -88,6 +89,7 @@ namespace GameClient.Network
                             "Закрытие по запросу сервера", CancellationToken.None);
                         _isConnected = false;
                         ConnectionClosed?.Invoke(this, "Соединение закрыто сервером");
+                        Console.WriteLine("закрыто");
                         break;
                     }
 
@@ -106,10 +108,13 @@ namespace GameClient.Network
             catch (OperationCanceledException)
             {
                 // Нормальная отмена операции
+
                 _isConnected = false;
             }
             catch (WebSocketException ex)
             {
+                if (!IsConnected)
+                    throw new InvalidOperationException($"Клиент {_isConnected}, {_webSocket?.State} не подключен к серверу");
                 _isConnected = false;
                 ConnectionClosed?.Invoke(this, $"Соединение прервано: {ex.Message}");
             }

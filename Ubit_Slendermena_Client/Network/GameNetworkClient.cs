@@ -87,7 +87,7 @@ namespace GameClient.Network
 
         private async Task ReceiveMessagesAsync()
         {
-            byte[] buffer = new byte[4096];
+            byte[] buffer = new byte[16384]; // Увеличиваем буфер для больших сообщений с пользовательскими вопросами
 
             try
             {
@@ -95,22 +95,34 @@ namespace GameClient.Network
 
                 while (_isConnected && _webSocket.State == WebSocketState.Open && !_cts.Token.IsCancellationRequested)
                 {
-                    WebSocketReceiveResult result = await _webSocket.ReceiveAsync(
-                        new ArraySegment<byte>(buffer), _cts.Token);
+                    var messageBuilder = new StringBuilder();
+                    WebSocketReceiveResult result;
 
-                    if (result.MessageType == WebSocketMessageType.Close)
+                    do
                     {
-                        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
-                            "Закрытие по запросу сервера", CancellationToken.None);
-                        _isConnected = false;
-                        Logger.Warn("Соединение закрыто сервером");
-                        ConnectionClosed?.Invoke(this, "Соединение закрыто сервером");
-                        break;
+                        result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);
+
+                        if (result.MessageType == WebSocketMessageType.Close)
+                        {
+                            await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
+                                "Закрытие по запросу сервера", CancellationToken.None);
+                            _isConnected = false;
+                            Logger.Warn("Соединение закрыто сервером");
+                            ConnectionClosed?.Invoke(this, "Соединение закрыто сервером");
+                            return;
+                        }
+
+                        if (result.MessageType == WebSocketMessageType.Text)
+                        {
+                            string chunk = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                            messageBuilder.Append(chunk);
+                        }
                     }
+                    while (!result.EndOfMessage);
 
-                    if (result.MessageType == WebSocketMessageType.Text)
+                    if (messageBuilder.Length > 0)
                     {
-                        string messageText = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                        string messageText = messageBuilder.ToString();
                         Logger.Debug($"Получено сообщение: {messageText}");
 
                         // Преобразуем строку в объект ServerMessage
@@ -162,16 +174,27 @@ namespace GameClient.Network
             });
         }
 
-        // НОВЫЙ МЕТОД: Создание игры
-        public async Task CreateGameAsync(int playerCount, string hostName)
+        // ОБНОВЛЕННЫЙ МЕТОД: Создание игры с поддержкой пользовательских вопросов
+        public async Task CreateGameAsync(int playerCount, string hostName, QuestionFile customQuestions = null)
         {
-            Logger.Info($"Создание игры на {playerCount} игроков, хост: {hostName}");
-            await SendMessageAsync(new
+            if (customQuestions != null)
+            {
+                Logger.Info($"Создание игры на {playerCount} игроков, хост: {hostName} с пользовательскими вопросами ({customQuestions.Categories.Count} категорий)");
+            }
+            else
+            {
+                Logger.Info($"Создание игры на {playerCount} игроков, хост: {hostName} со стандартными вопросами");
+            }
+
+            var message = new
             {
                 Type = "CreateGame",
                 playerCount = playerCount,
-                hostName = hostName
-            });
+                hostName = hostName,
+                customQuestions = customQuestions
+            };
+
+            await SendMessageAsync(message);
         }
 
         // НОВЫЙ МЕТОД: Присоединение к игре

@@ -1,5 +1,9 @@
 ﻿using GameClient.Models;
 using NLog;
+using System;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 using System.Windows.Forms;
 
 namespace Ubit_Slendermena_Client
@@ -13,6 +17,7 @@ namespace Ubit_Slendermena_Client
         private bool _isHost = false;
         private int _requiredPlayers = 0;
         private int _currentPlayers = 0;
+        private QuestionFile _customQuestions = null; // Используем ваши модели
 
         public NewGame(Player player, GameClient.Network.GameClient client)
         {
@@ -49,49 +54,73 @@ namespace Ubit_Slendermena_Client
                 HostBtn.Text = "Присоединиться к игре";
                 HostBtn.Enabled = true;
             }
-        }
 
-        private void SubscribeToEvents()
-        {
-            Logger.Debug("Подписка на события сетевого клиента в NewGame");
-            if (_networkClient != null)
+            // Обновляем текст кнопки загрузки вопросов
+            if (_customQuestions != null)
             {
-                _networkClient.MessageReceived += OnServerMessage;
-                _networkClient.ConnectionClosed += OnConnectionClosed;
-                _networkClient.ErrorOccurred += OnErrorOccurred;
+                btnUploadQuestions.Text = $"Вопросы загружены ({_customQuestions.Categories.Sum(c => c.Questions.Count)})";
+                btnUploadQuestions.BackColor = Color.LightGreen;
             }
-        }
-
-        private void UnsubscribeFromEvents()
-        {
-            Logger.Debug("Отписка от событий сетевого клиента в NewGame");
-            if (_networkClient != null)
+            else
             {
-                _networkClient.MessageReceived -= OnServerMessage;
-                _networkClient.ConnectionClosed -= OnConnectionClosed;
-                _networkClient.ErrorOccurred -= OnErrorOccurred;
+                btnUploadQuestions.Text = "Загрузить вопросы";
+                btnUploadQuestions.BackColor = SystemColors.Control;
             }
-        }
-
-        private void OpenGameForm()
-        {
-            Logger.Info("Переход к JeopardyGameForm");
-            UnsubscribeFromEvents();
-            var gameForm = new JeopardyGameForm(_player, _networkClient);
-            //this.Hide();
-            gameForm.Show();
         }
 
         private void btnUploadQuestions_Click(object sender, EventArgs e)
         {
             Logger.Info("Нажата кнопка загрузки вопросов");
+
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Question Packages (*.json;*.txt)|*.json;*.txt|All files (*.*)|*.*";
+            dialog.Filter = "JSON файлы (*.json)|*.json|Все файлы (*.*)|*.*";
+            dialog.Title = "Выберите файл с вопросами";
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                Logger.Info($"Выбран файл вопросов: {dialog.FileName}");
-                MessageBox.Show("Файл загружен: " + dialog.FileName);
+                try
+                {
+                    Logger.Info($"Выбран файл вопросов: {dialog.FileName}");
+
+                    string jsonContent = File.ReadAllText(dialog.FileName);
+                    var questionFile = JsonSerializer.Deserialize<QuestionFile>(jsonContent, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    // Валидация загруженных вопросов
+                    if (ValidateQuestionFile(questionFile))
+                    {
+                        _customQuestions = questionFile;
+                        UpdateUI();
+
+                        int totalQuestions = questionFile.Categories.Sum(c => c.Questions.Count);
+                        Logger.Info($"Успешно загружено {totalQuestions} вопросов из {questionFile.Categories.Count} категорий");
+
+                        MessageBox.Show($"Файл успешно загружен!\n" +
+                                      $"Категорий: {questionFile.Categories.Count}\n" +
+                                      $"Вопросов: {totalQuestions}",
+                                      "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        Logger.Warn("Файл вопросов не прошел валидацию");
+                        MessageBox.Show("Файл не соответствует требуемому формату или содержит недостаточно вопросов.",
+                                      "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    Logger.Error(ex, "Ошибка парсинга JSON файла");
+                    MessageBox.Show("Ошибка чтения файла. Проверьте формат JSON.",
+                                  "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Общая ошибка при загрузке файла");
+                    MessageBox.Show($"Ошибка при загрузке файла: {ex.Message}",
+                                  "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             else
             {
@@ -99,7 +128,53 @@ namespace Ubit_Slendermena_Client
             }
         }
 
-        // СОЗДАНИЕ ИГРЫ
+        private bool ValidateQuestionFile(QuestionFile questionFile)
+        {
+            if (questionFile?.Categories == null || questionFile.Categories.Count == 0)
+            {
+                Logger.Warn("Файл не содержит категорий");
+                return false;
+            }
+
+            int totalQuestions = 0;
+            foreach (var category in questionFile.Categories)
+            {
+                if (string.IsNullOrWhiteSpace(category.Name))
+                {
+                    Logger.Warn("Найдена категория без названия");
+                    return false;
+                }
+
+                if (category.Questions == null || category.Questions.Count == 0)
+                {
+                    Logger.Warn($"Категория '{category.Name}' не содержит вопросов");
+                    return false;
+                }
+
+                foreach (var question in category.Questions)
+                {
+                    if (string.IsNullOrWhiteSpace(question.Text) ||
+                        string.IsNullOrWhiteSpace(question.Answer) ||
+                        question.Price <= 0)
+                    {
+                        Logger.Warn($"Некорректный вопрос в категории '{category.Name}'");
+                        return false;
+                    }
+                }
+
+                totalQuestions += category.Questions.Count;
+            }
+
+            if (totalQuestions < 30)
+            {
+                Logger.Warn($"Недостаточно вопросов: {totalQuestions}, требуется минимум 30");
+                return false;
+            }
+
+            return true;
+        }
+
+        // СОЗДАНИЕ ИГРЫ (обновленный метод)
         private async void btnCreate_Click(object sender, EventArgs e)
         {
             Logger.Info($"Игрок {_player?.Username} нажал кнопку создания игры");
@@ -139,8 +214,17 @@ namespace Ubit_Slendermena_Client
                 _requiredPlayers = playerCount;
                 _isHost = true;
 
-                // Используем новый метод CreateGameAsync
-                await _networkClient.CreateGameAsync(playerCount, _player.Username);
+                // Используем обновленный метод CreateGameAsync с пользовательскими вопросами
+                if (_customQuestions != null)
+                {
+                    Logger.Info($"Создание игры с пользовательскими вопросами: {_customQuestions.Categories.Count} категорий, {_customQuestions.Categories.Sum(c => c.Questions.Count)} вопросов");
+                }
+                else
+                {
+                    Logger.Info("Создание игры со стандартными вопросами");
+                }
+
+                await _networkClient.CreateGameAsync(playerCount, _player.Username, _customQuestions);
 
                 Logger.Debug("Запрос на создание игры отправлен");
             }
@@ -153,6 +237,37 @@ namespace Ubit_Slendermena_Client
                 btnCreate.Enabled = true;
                 btnCreate.Text = "Создать игру";
             }
+        }
+
+        // Остальные методы остаются без изменений...
+        private void SubscribeToEvents()
+        {
+            Logger.Debug("Подписка на события сетевого клиента в NewGame");
+            if (_networkClient != null)
+            {
+                _networkClient.MessageReceived += OnServerMessage;
+                _networkClient.ConnectionClosed += OnConnectionClosed;
+                _networkClient.ErrorOccurred += OnErrorOccurred;
+            }
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            Logger.Debug("Отписка от событий сетевого клиента в NewGame");
+            if (_networkClient != null)
+            {
+                _networkClient.MessageReceived -= OnServerMessage;
+                _networkClient.ConnectionClosed -= OnConnectionClosed;
+                _networkClient.ErrorOccurred -= OnErrorOccurred;
+            }
+        }
+
+        private void OpenGameForm()
+        {
+            Logger.Info("Переход к JeopardyGameForm");
+            UnsubscribeFromEvents();
+            var gameForm = new JeopardyGameForm(_player, _networkClient);
+            gameForm.Show();
         }
 
         // ПРИСОЕДИНЕНИЕ К ИГРЕ
@@ -207,8 +322,6 @@ namespace Ubit_Slendermena_Client
                         _gameCreated = true;
                         _currentPlayers = 1; // Хост уже в игре
                         UpdateUI();
-                        OpenGameForm();
-
 
                         MessageBox.Show($"Игра создана! Ожидание игроков ({_currentPlayers}/{_requiredPlayers})", "Успех",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -245,18 +358,7 @@ namespace Ubit_Slendermena_Client
 
                     case "GameStarted":
                         Logger.Info("Получено уведомление о начале игры");
-
-                        // Проверяем, достаточно ли игроков
-                        if (message.Players?.Count >= _requiredPlayers || _requiredPlayers == 0)
-                        {
-                            OpenGameForm();
-                        }
-                        else
-                        {
-                            Logger.Warn($"Недостаточно игроков для начала: {message.Players?.Count}/{_requiredPlayers}");
-                            MessageBox.Show($"Недостаточно игроков для начала игры! Подключено: {message.Players?.Count}, требуется: {_requiredPlayers}",
-                                "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        }
+                        OpenGameForm();
                         break;
 
                     case "GameFull":

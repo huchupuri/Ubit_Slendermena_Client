@@ -29,8 +29,6 @@ namespace Ubit_Slendermena_Client
             _client = client;
 
             Logger.Debug($"MenuForm создана для игрока ID={player?.Id}, Username={player?.Username}");
-            
-            // Отображаем информацию о игроке в заголовке или статусной строке
             UpdatePlayerInfo();
             SubscribeToClientEvents();
         }
@@ -39,7 +37,6 @@ namespace Ubit_Slendermena_Client
         {
             if (_player != null)
             {
-                // Обновляем заголовок окна с информацией о игроке
                 this.Text = $"Главное меню - {_player.Username} (Побед: {_player.Wins}/{_player.TotalGames})";
                 Logger.Debug($"Обновлена информация о игроке в заголовке: {_player.Username}");
             }
@@ -132,16 +129,13 @@ namespace Ubit_Slendermena_Client
                 var profileForm = new ProfileForm(_player);
                 var result = profileForm.ShowDialog();
                 
-                // Если пользователь вышел из аккаунта через профиль
                 if (result == DialogResult.OK)
                 {
                     Logger.Info("Пользователь вышел из аккаунта через профиль");
-                    // Форма профиля уже обработала выход, просто закрываем MenuForm
                     this.Close();
                 }
                 else
                 {
-                    // Обновляем информацию о игроке на случай изменений
                     UpdatePlayerInfo();
                 }
             }
@@ -155,40 +149,6 @@ namespace Ubit_Slendermena_Client
 
         private void LocalizationBtn_Click(object sender, EventArgs e)
         {
-            Logger.Info("Нажата кнопка локализации");
-            
-            try
-            {
-                // Показываем диалог выбора языка
-                var languageDialog = MessageBox.Show(
-                    "Выберите язык:\n\nДа - Русский\nНет - English\nОтмена - Отменить",
-                    "Выбор языка",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Question);
-
-                switch (languageDialog)
-                {
-                    case DialogResult.Yes:
-                        Logger.Info("Выбран русский язык");
-                        MessageBox.Show("Русский язык уже установлен", "Язык",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        break;
-                    case DialogResult.No:
-                        Logger.Info("Выбран английский язык");
-                        MessageBox.Show("English language will be implemented later", "Language",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        break;
-                    default:
-                        Logger.Debug("Выбор языка отменен");
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Ошибка при смене языка");
-                MessageBox.Show($"Ошибка при смене языка: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
 
         private async void PlayBtn_Click(object sender, EventArgs e)
@@ -197,11 +157,8 @@ namespace Ubit_Slendermena_Client
 
             try
             {
-                // Отключаем кнопку во время обработки
                 PlayBtn.Enabled = false;
-                PlayBtn.Text = "Создание игры...";
-
-                // Проверяем соединение с сервером
+                PlayBtn.Text = "Создание игры";
                 if (!_client.IsConnected)
                 {
                     Logger.Warn("Попытка создания игры без соединения с сервером");
@@ -211,7 +168,6 @@ namespace Ubit_Slendermena_Client
                 }
 
                 Logger.Debug("Открытие формы создания новой игры");
-                // Открываем форму создания новой игры
                 var newGameForm = new NewGame(_player, _client);
                 UnsubscribeFromClientEvents();
                 this.Hide();
@@ -226,7 +182,6 @@ namespace Ubit_Slendermena_Client
             }
             finally
             {
-                // Восстанавливаем состояние кнопки
                 PlayBtn.Enabled = true;
                 PlayBtn.Text = "Играть";
                 Logger.Debug("Состояние кнопки 'Играть' восстановлено");
@@ -236,25 +191,9 @@ namespace Ubit_Slendermena_Client
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             Logger.Info($"Закрытие MenuForm для игрока: {_player?.Username}");
-
-            // Отписываемся от событий и отключаемся от сервера при закрытии формы
             UnsubscribeFromClientEvents();
 
-            if (_client != null && _client.IsConnected)
-            {
-                try
-                {
-                    Logger.Debug("Отключение от сервера при закрытии MenuForm");
-                    _client.DisconnectAsync().Wait(1000); // Ждем максимум 1 секунду
-                    Logger.Info("Успешное отключение от сервера");
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex, "Ошибка при отключении от сервера в MenuForm");
-                    Console.WriteLine($"Ошибка при отключении: {ex.Message}");
-                }
-            }
-
+            _client.DisconnectAsync().Wait(1000);
             base.OnFormClosing(e);
         }
     }

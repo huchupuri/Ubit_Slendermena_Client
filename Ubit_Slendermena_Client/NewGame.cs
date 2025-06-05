@@ -17,7 +17,7 @@ namespace Ubit_Slendermena_Client
         private bool _isHost = false;
         private int _requiredPlayers = 0;
         private int _currentPlayers = 0;
-        private QuestionFile _customQuestions = null; // Используем ваши модели
+        private QuestionFile _customQuestions = null; 
 
         public NewGame(Player player, GameClient.Network.GameClient client)
         {
@@ -27,8 +27,6 @@ namespace Ubit_Slendermena_Client
             _player = player;
             _networkClient = client;
             SubscribeToEvents();
-
-            // Обновляем интерфейс
             UpdateUI();
 
             Logger.Debug($"NewGame создана для игрока ID={player?.Id}");
@@ -55,7 +53,6 @@ namespace Ubit_Slendermena_Client
                 HostBtn.Enabled = true;
             }
 
-            // Обновляем текст кнопки загрузки вопросов
             if (_customQuestions != null)
             {
                 btnUploadQuestions.Text = $"Вопросы загружены ({_customQuestions.Categories.Sum(c => c.Questions.Count)})";
@@ -87,8 +84,6 @@ namespace Ubit_Slendermena_Client
                     {
                         PropertyNameCaseInsensitive = true
                     });
-
-                    // Валидация загруженных вопросов
                     if (ValidateQuestionFile(questionFile))
                     {
                         _customQuestions = questionFile;
@@ -96,11 +91,6 @@ namespace Ubit_Slendermena_Client
 
                         int totalQuestions = questionFile.Categories.Sum(c => c.Questions.Count);
                         Logger.Info($"Успешно загружено {totalQuestions} вопросов из {questionFile.Categories.Count} категорий");
-
-                        MessageBox.Show($"Файл успешно загружен!\n" +
-                                      $"Категорий: {questionFile.Categories.Count}\n" +
-                                      $"Вопросов: {totalQuestions}",
-                                      "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
@@ -108,12 +98,6 @@ namespace Ubit_Slendermena_Client
                         MessageBox.Show("Файл не соответствует требуемому формату или содержит недостаточно вопросов.",
                                       "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
-                }
-                catch (JsonException ex)
-                {
-                    Logger.Error(ex, "Ошибка парсинга JSON файла");
-                    MessageBox.Show("Ошибка чтения файла. Проверьте формат JSON.",
-                                  "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (Exception ex)
                 {
@@ -173,23 +157,18 @@ namespace Ubit_Slendermena_Client
 
             return true;
         }
-
-        // СОЗДАНИЕ ИГРЫ (обновленный метод)
         private async void btnCreate_Click(object sender, EventArgs e)
         {
             Logger.Info($"Игрок {_player?.Username} нажал кнопку создания игры");
 
             try
             {
-                // Проверяем, не создана ли уже игра
                 if (_gameCreated)
                 {
-                    MessageBox.Show("Игра уже создана! Дождитесь подключения игроков.", "Информация",
+                    MessageBox.Show("Игра уже создана", "Информация",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
-
-                // Проверяем соединение
                 if (!_networkClient.IsConnected)
                 {
                     Logger.Warn("Попытка создания игры без соединения с сервером");
@@ -197,8 +176,6 @@ namespace Ubit_Slendermena_Client
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-
-                // Валидация ввода
                 if (!int.TryParse(txtPlayerCount.Text, out int playerCount) || playerCount < 1 || playerCount > 255)
                 {
                     Logger.Warn($"Некорректное количество игроков: {txtPlayerCount.Text}");
@@ -213,8 +190,6 @@ namespace Ubit_Slendermena_Client
 
                 _requiredPlayers = playerCount;
                 _isHost = true;
-
-                // Используем обновленный метод CreateGameAsync с пользовательскими вопросами
                 if (_customQuestions != null)
                 {
                     Logger.Info($"Создание игры с пользовательскими вопросами: {_customQuestions.Categories.Count} категорий, {_customQuestions.Categories.Sum(c => c.Questions.Count)} вопросов");
@@ -223,9 +198,7 @@ namespace Ubit_Slendermena_Client
                 {
                     Logger.Info("Создание игры со стандартными вопросами");
                 }
-
                 await _networkClient.CreateGameAsync(playerCount, _player.Username, _customQuestions);
-
                 Logger.Debug("Запрос на создание игры отправлен");
             }
             catch (Exception ex)
@@ -238,8 +211,6 @@ namespace Ubit_Slendermena_Client
                 btnCreate.Text = "Создать игру";
             }
         }
-
-        // Остальные методы остаются без изменений...
         private void SubscribeToEvents()
         {
             Logger.Debug("Подписка на события сетевого клиента в NewGame");
@@ -270,14 +241,12 @@ namespace Ubit_Slendermena_Client
             gameForm.Show();
         }
 
-        // ПРИСОЕДИНЕНИЕ К ИГРЕ
         private async void HostBtn_Click(object sender, EventArgs e)
         {
             Logger.Info($"Игрок {_player?.Username} нажал кнопку присоединения к игре");
 
             try
             {
-                // Проверяем соединение
                 if (!_networkClient.IsConnected)
                 {
                     Logger.Warn("Попытка присоединения к игре без соединения с сервером");
@@ -289,7 +258,6 @@ namespace Ubit_Slendermena_Client
                 HostBtn.Enabled = false;
                 HostBtn.Text = "Подключение...";
                 Logger.Debug("Отправка запроса на присоединение к игре");
-                // Используем новый метод JoinGameAsync
                 await _networkClient.JoinGameAsync(_player.Username);
             }
             catch (Exception ex)
@@ -320,7 +288,7 @@ namespace Ubit_Slendermena_Client
                     case "GameCreated":
                         Logger.Info("Игра успешно создана");
                         _gameCreated = true;
-                        _currentPlayers = 1; // Хост уже в игре
+                        _currentPlayers = 1; 
                         UpdateUI();
 
                         MessageBox.Show($"Игра создана! Ожидание игроков ({_currentPlayers}/{_requiredPlayers})", "Успех",
@@ -346,8 +314,6 @@ namespace Ubit_Slendermena_Client
                             MessageBox.Show($"Игрок {message.PlayerName} присоединился! ({_currentPlayers}/{_requiredPlayers})",
                                 "Новый игрок", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
-
-                        // Проверяем, достаточно ли игроков для начала 
                         if (_currentPlayers >= _requiredPlayers)
                         {
                             Logger.Info("Достаточно игроков для начала игры");
@@ -383,8 +349,6 @@ namespace Ubit_Slendermena_Client
                         Logger.Error($"Получена ошибка от сервера: {message.Message}");
                         MessageBox.Show($"Ошибка: {message.Message}", "Ошибка",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                        // Восстанавливаем состояние кнопок
                         if (!_gameCreated)
                         {
                             btnCreate.Enabled = true;
@@ -419,8 +383,6 @@ namespace Ubit_Slendermena_Client
             Logger.Error($"Соединение потеряно в NewGame: {reason}");
             MessageBox.Show($"Соединение потеряно: {reason}", "Ошибка",
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-            // Сбрасываем состояние
             _gameCreated = false;
             _isHost = false;
             _currentPlayers = 0;

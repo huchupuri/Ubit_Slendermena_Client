@@ -210,7 +210,6 @@ namespace Ubit_Slendermena_Client
 
             Logger.Info("Начало процесса входа в аккаунт");
 
-            // Валидация входных данных
             if (string.IsNullOrWhiteSpace(AuthorizationTxt.Text))
             {
                 Logger.Warn("Попытка входа с пустым именем пользователя");

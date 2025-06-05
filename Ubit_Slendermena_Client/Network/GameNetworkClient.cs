@@ -24,7 +24,7 @@ namespace GameClient.Network
         {
             _serverUrl = serverUrl;
             _cts = new CancellationTokenSource();
-            Logger.Info($"GameClient создан с URL: {serverUrl}");
+            Logger.Info($"GameClient создан");
         }
 
         public async Task ConnectAsync()
@@ -32,8 +32,6 @@ namespace GameClient.Network
             try
             {
                 Logger.Info("Попытка подключения к серверу");
-
-                // Создаем новый WebSocket если предыдущий был закрыт
                 if (_webSocket?.State != WebSocketState.Open)
                 {
                     _webSocket?.Dispose();
@@ -46,9 +44,7 @@ namespace GameClient.Network
                 _isConnected = true;
 
                 Logger.Info("Успешное подключение к серверу");
-
-                // Запускаем прослушивание сообщений
-                _ = Task.Run(ReceiveMessagesAsync);
+                var receiveTask = Task.Run(ReceiveMessagesAsync);
             }
             catch (Exception ex)
             {
@@ -70,8 +66,6 @@ namespace GameClient.Network
             try
             {
                 string jsonMessage = JsonSerializer.Serialize(message);
-                Logger.Debug($"Отправка сообщения: {jsonMessage}");
-
                 byte[] messageBytes = Encoding.UTF8.GetBytes(jsonMessage);
 
                 await _webSocket.SendAsync(new ArraySegment<byte>(messageBytes),
@@ -87,7 +81,7 @@ namespace GameClient.Network
 
         private async Task ReceiveMessagesAsync()
         {
-            byte[] buffer = new byte[16384]; // Увеличиваем буфер для больших сообщений с пользовательскими вопросами
+            byte[] buffer = new byte[16384]; 
 
             try
             {
@@ -124,8 +118,6 @@ namespace GameClient.Network
                     {
                         string messageText = messageBuilder.ToString();
                         Logger.Debug($"Получено сообщение: {messageText}");
-
-                        // Преобразуем строку в объект ServerMessage
                         ServerMessage serverMessage = ServerMessage.FromJson(messageText);
 
                         // Вызываем событие с объектом ServerMessage
@@ -173,8 +165,6 @@ namespace GameClient.Network
                 Password = password
             });
         }
-
-        // ОБНОВЛЕННЫЙ МЕТОД: Создание игры с поддержкой пользовательских вопросов
         public async Task CreateGameAsync(int playerCount, string hostName, QuestionFile customQuestions = null)
         {
             if (customQuestions != null)
@@ -196,8 +186,6 @@ namespace GameClient.Network
 
             await SendMessageAsync(message);
         }
-
-        // НОВЫЙ МЕТОД: Присоединение к игре
         public async Task JoinGameAsync(string playerName)
         {
             Logger.Info($"Присоединение к игре игрока: {playerName}");
@@ -264,7 +252,7 @@ namespace GameClient.Network
         public void Dispose()
         {
             Logger.Debug("Освобождение ресурсов GameClient");
-            _cts?.Cancel();
+            _cts?.Cancel(); 
             _webSocket?.Dispose();
             _cts?.Dispose();
         }

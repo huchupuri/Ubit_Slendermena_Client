@@ -130,7 +130,7 @@ namespace Ubit_Slendermena_Client
                 textBoxAnswer.Enabled = false;
                 buttonSubmit.Enabled = false;
 
-                MessageBox.Show("⏰ Время вышло!", "Время истекло",
+                MessageBox.Show("Время вышло!", "Время истекло",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -237,8 +237,6 @@ namespace Ubit_Slendermena_Client
             }
 
             string userAnswer = textBoxAnswer.Text.Trim();
-
-            // Отключаем возможность повторного ответа
             textBoxAnswer.Enabled = false;
             buttonSubmit.Enabled = false;
             _canAnswer = false;
@@ -259,8 +257,6 @@ namespace Ubit_Slendermena_Client
             {
                 MessageBox.Show($"Ошибка отправки ответа: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                // Восстанавливаем возможность ответить при ошибке
                 textBoxAnswer.Enabled = true;
                 buttonSubmit.Enabled = true;
                 buttonSubmit.Text = "ОТПРАВИТЬ";

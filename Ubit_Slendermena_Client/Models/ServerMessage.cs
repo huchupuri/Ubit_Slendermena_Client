@@ -40,7 +40,6 @@ namespace GameClient.Models
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка десериализации сообщения: {ex.Message}");
                 return new ServerMessage { Type = "Error", Message = "Ошибка обработки сообщения" };
             }
         }

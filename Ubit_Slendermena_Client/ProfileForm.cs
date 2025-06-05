@@ -38,9 +38,7 @@ namespace Ubit_Slendermena_Client
             if (_player != null)
             {
                 UsernameTxt.Text = _player.Username;
-                UsernameTxt.ReadOnly = true; // Логин нельзя изменить
-
-                // Загружаем аватар по умолчанию или сохраненный
+                UsernameTxt.ReadOnly = true; 
                 LoadPlayerAvatar();
 
                 Logger.Info($"Данные игрока загружены: {_player.Username}, Игр: {_player.TotalGames}, Побед: {_player.Wins}");
@@ -51,7 +49,6 @@ namespace Ubit_Slendermena_Client
         {
             try
             {
-                // Попытка загрузить сохраненный аватар
                 string avatarPath = Path.Combine(Application.StartupPath, "avatars", $"{_player.Id}.png");
 
                 if (File.Exists(avatarPath))
@@ -61,8 +58,6 @@ namespace Ubit_Slendermena_Client
                 }
                 else
                 {
-                    Logger.Debug("Использование аватара по умолчанию");
-                    // Устанавливаем аватар по умолчанию
                     AvatarPic.BackColor = Color.LightGray;
                     AvatarPic.Image = null;
                 }
@@ -77,7 +72,6 @@ namespace Ubit_Slendermena_Client
 
         private void SubscribeToEvents()
         {
-            Logger.Debug("Подписка на события кнопок в ProfileForm");
 
             ChangePasswordBtn.Click += ChangePasswordBtn_Click;
             UploadImgBtn.Click += UploadImgBtn_Click;
@@ -113,7 +107,6 @@ namespace Ubit_Slendermena_Client
 
                 if (result == DialogResult.Yes)
                 {
-                    // Здесь должна быть логика отправки запроса на сервер для смены пароля
                     Logger.Info($"Пароль изменен для игрока: {_player?.Username}");
                     MessageBox.Show("Пароль успешно изменен!", "Успех",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -144,17 +137,13 @@ namespace Ubit_Slendermena_Client
                     {
                         _selectedAvatarPath = openFileDialog.FileName;
                         Logger.Info($"Выбран файл аватара: {_selectedAvatarPath}");
-
-                        // Загружаем и отображаем выбранное изображение
                         using (var originalImage = Image.FromFile(_selectedAvatarPath))
                         {
-                            // Создаем копию изображения для отображения
                             var displayImage = new Bitmap(originalImage, AvatarPic.Size);
-                            AvatarPic.Image?.Dispose(); // Освобождаем предыдущее изображение
+                            AvatarPic.Image?.Dispose(); 
                             AvatarPic.Image = displayImage;
                         }
 
-                        // Сохраняем аватар
                         SavePlayerAvatar();
 
                         MessageBox.Show("Аватар успешно загружен!", "Успех",
@@ -172,42 +161,12 @@ namespace Ubit_Slendermena_Client
 
         private void SavePlayerAvatar()
         {
-            try
-            {
-                if (string.IsNullOrEmpty(_selectedAvatarPath) || _player == null)
-                    return;
-
-                // Создаем папку для аватаров если её нет
-                string avatarsDir = Path.Combine(Application.StartupPath, "avatars");
-                if (!Directory.Exists(avatarsDir))
-                {
-                    Directory.CreateDirectory(avatarsDir);
-                    Logger.Debug($"Создана папка для аватаров: {avatarsDir}");
-                }
-
-                // Путь для сохранения аватара
-                string savePath = Path.Combine(avatarsDir, $"{_player.Id}.png");
-
-                // Загружаем, изменяем размер и сохраняем изображение
-                using (var originalImage = Image.FromFile(_selectedAvatarPath))
-                {
-                    using (var resizedImage = new Bitmap(originalImage, 128, 128))
-                    {
-                        resizedImage.Save(savePath, System.Drawing.Imaging.ImageFormat.Png);
-                        Logger.Info($"Аватар сохранен: {savePath}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Ошибка при сохранении аватара");
-                throw;
-            }
+           
         }
 
         private void ExitBtn_Click(object sender, EventArgs e)
         {
-            Logger.Info($"Игрок {_player?.Username} нажал кнопку выхода из аккаунта");
+            Logger.Info($"Игрок {_player?.Username} вышел");
 
             try
             {
@@ -217,20 +176,15 @@ namespace Ubit_Slendermena_Client
                 if (result == DialogResult.Yes)
                 {
                     Logger.Info($"Подтвержден выход из аккаунта для игрока: {_player?.Username}");
-
-                    // Закрываем текущую форму профиля
                     this.DialogResult = DialogResult.OK;
                     this.Close();
 
-                    // Находим и закрываем MenuForm, возвращаемся к EntryForm
                     foreach (Form form in Application.OpenForms.Cast<Form>().ToArray())
                     {
                         if (form is MenuForm menuForm)
                         {
                             Logger.Debug("Закрытие MenuForm и возврат к EntryForm");
                             menuForm.Hide();
-
-                            // Создаем новую форму входа
                             var entryForm = new EntryForm(null);
                             entryForm.Show();
 
@@ -242,45 +196,25 @@ namespace Ubit_Slendermena_Client
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, $"Ошибка при выходе из аккаунта для игрока: {_player?.Username}");
-                MessageBox.Show($"Ошибка при выходе: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void DeleteAccountBtn_Click(object sender, EventArgs e)
         {
-            Logger.Warn($"Игрок {_player?.Username} нажал кнопку удаления аккаунта");
+            Logger.Warn($"Игрок {_player?.Username} нажал удаление аккауниа");
 
             try
             {
-                var result = MessageBox.Show(
-                    "ВНИМАНИЕ! Это действие нельзя отменить.\n\nВы уверены, что хотите удалить свой аккаунт?",
-                    "Подтверждение удаления аккаунта",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
 
-                if (result == DialogResult.Yes)
-                {
-                    var confirmResult = MessageBox.Show(
-                        "Последнее предупреждение!\n\nВсе ваши данные будут безвозвратно удалены.\nПродолжить?",
-                        "Окончательное подтверждение",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Stop);
+                Logger.Warn($"Подтверждено удаление аккаунта для игрока: {_player?.Username}");
 
-                    if (confirmResult == DialogResult.Yes)
-                    {
-                        Logger.Warn($"Подтверждено удаление аккаунта для игрока: {_player?.Username}");
+                // Здесь должна быть логика отправки запроса на сервер для удаления аккаунта
+                // await _networkClient.DeleteAccountAsync(_player.Id);
 
-                        // Здесь должна быть логика отправки запроса на сервер для удаления аккаунта
-                        // await _networkClient.DeleteAccountAsync(_player.Id);
+                MessageBox.Show("Аккаунт будет удален. Функция будет реализована позже.", "Информация",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                        MessageBox.Show("Аккаунт будет удален. Функция будет реализована позже.", "Информация",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                        Logger.Info("Запрос на удаление аккаунта обработан (заглушка)");
-                    }
-                }
+                Logger.Info("Запрос на удаление аккаунта обработан (заглушка)");
             }
             catch (Exception ex)
             {
@@ -299,8 +233,6 @@ namespace Ubit_Slendermena_Client
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             Logger.Info($"Закрытие ProfileForm для игрока: {_player?.Username}");
-
-            // Освобождаем ресурсы изображения
             if (AvatarPic.Image != null)
             {
                 AvatarPic.Image.Dispose();

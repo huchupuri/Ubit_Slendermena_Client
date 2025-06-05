@@ -30,7 +30,6 @@ namespace Ubit_Slendermena_Client
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EntryForm));
             AuthorizationTxt = new TextBox();
             PassswordTxt = new TextBox();
             AuthorizationLabel = new Label();
@@ -125,7 +124,7 @@ namespace Ubit_Slendermena_Client
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
+            BackgroundImage = Properties.Resource.AuthorizationBackground;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(788, 487);
             Controls.Add(GameTitleLabel);

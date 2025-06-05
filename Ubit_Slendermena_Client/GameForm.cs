@@ -1,5 +1,6 @@
 ﻿using GameClient.Models;
 using GameClient.Network;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,6 +12,7 @@ namespace Ubit_Slendermena_Client
 {
     public partial class JeopardyGameForm : Form
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly GameClient.Network.GameClient _networkClient;
         private readonly Player _currentPlayer;
 
@@ -25,6 +27,8 @@ namespace Ubit_Slendermena_Client
 
         public JeopardyGameForm(Player currentPlayer, GameClient.Network.GameClient client)
         {
+            Logger.Info($"Инициализация JeopardyGameForm для игрока: {currentPlayer?.Username}");
+
             _currentPlayer = currentPlayer;
             _networkClient = client;
             InitializeComponent();
@@ -32,13 +36,17 @@ namespace Ubit_Slendermena_Client
 
             if (!_networkClient.IsConnected)
             {
+                Logger.Error("Попытка создания JeopardyGameForm без соединения с сервером");
                 this.Close();
                 return;
             }
+
+            Logger.Debug($"JeopardyGameForm успешно создана для игрока ID={currentPlayer?.Id}");
         }
 
         private void SubscribeToEvents()
         {
+            Logger.Debug("Подписка на события сетевого клиента в JeopardyGameForm");
             if (_networkClient != null)
             {
                 _networkClient.MessageReceived += OnServerMessage;
@@ -49,6 +57,7 @@ namespace Ubit_Slendermena_Client
 
         private void UnsubscribeFromEvents()
         {
+            Logger.Debug("Отписка от событий сетевого клиента в JeopardyGameForm");
             if (_networkClient != null)
             {
                 _networkClient.MessageReceived -= OnServerMessage;
@@ -67,46 +76,54 @@ namespace Ubit_Slendermena_Client
 
             try
             {
-                Console.WriteLine($"JeopardyGameForm получил сообщение: {serverMessage.Type}");
+                Logger.Debug($"JeopardyGameForm получил сообщение: {serverMessage.Type}");
 
                 switch (serverMessage.Type)
                 {
                     case "GameData":
+                        Logger.Info("Получены данные игры");
                         LoadGameData(serverMessage);
                         break;
 
                     case "Question":
-                        
+                        Logger.Info($"Получен вопрос ID={serverMessage.QuestionId}");
                         HandleQuestionReceived(serverMessage);
                         break;
 
                     case "AnswerResult":
+                        Logger.Info($"Получен результат ответа: {(serverMessage.IsCorrect ? "правильно" : "неправильно")}");
                         HandleAnswerResult(serverMessage);
                         break;
 
                     case "QuestionCompleted":
+                        Logger.Info("Вопрос завершен");
                         HandleQuestionCompleted(serverMessage);
                         break;
 
                     case "QuestionTimeout":
+                        Logger.Warn("Время на вопрос истекло");
                         HandleQuestionTimeout(serverMessage);
                         break;
 
                     case "GameOver":
+                        Logger.Info("Игра завершена");
                         HandleGameOver(serverMessage);
                         break;
 
                     case "Error":
+                        Logger.Error($"Получена ошибка от сервера: {serverMessage.Message}");
                         UpdateGameStatus($"❌ Ошибка: {serverMessage.Message}", Color.Red);
                         break;
 
                     default:
+                        Logger.Warn($"Получено неизвестное сообщение: {serverMessage.Type}");
                         Console.WriteLine($"Неизвестное сообщение: {serverMessage.Type}");
                         break;
                 }
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, "Ошибка обработки сообщения от сервера в JeopardyGameForm");
                 MessageBox.Show($"Ошибка обработки сообщения: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -127,18 +144,20 @@ namespace Ubit_Slendermena_Client
                         CategoryName = serverMessage.Question.CategoryName
                     };
 
+                    Logger.Info($"Показ вопроса: ID={question.Id}, Цена={question.Price}, Категория={question.CategoryName}");
                     // Показываем вопрос в отдельной форме
                     ShowQuestionInForm(question);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка",
- MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Logger.Error(ex, "Ошибка при обработке полученного вопроса");
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // Fallback для старого формата
                 if (!string.IsNullOrEmpty(serverMessage.Message))
                 {
+                    Logger.Debug("Использование fallback формата для вопроса");
                     var question = new Question
                     {
                         Id = serverMessage.QuestionId,
@@ -154,18 +173,20 @@ namespace Ubit_Slendermena_Client
         private void ShowQuestionInForm(Question question)
         {
             _currentQuestion = question;
-            
+
             // Создаем и показываем форму вопроса
             var questionForm = new QuestionForm(question, _networkClient, _currentPlayer);
-            //this.Hide();
-            questionForm.Show(); // Модальное окно
+            questionForm.Show();
         }
 
         private void LoadGameData(ServerMessage message)
         {
+            Logger.Debug("Загрузка данных игры");
+
             if (message.Categories?.Any() == true)
             {
                 _categories = message.Categories;
+                Logger.Info($"Загружено {_categories.Count} категорий");
 
                 // Обновляем заголовки категорий
                 for (int i = 0; i < Math.Min(_categories.Count, 6); i++)
@@ -177,6 +198,7 @@ namespace Ubit_Slendermena_Client
             if (message.Players?.Any() == true)
             {
                 _players = message.Players;
+                Logger.Info($"Загружено {_players.Count} игроков");
                 UpdatePlayersList();
             }
 
@@ -186,6 +208,7 @@ namespace Ubit_Slendermena_Client
         private void HandleAnswerResult(ServerMessage message)
         {
             string playerName = message.PlayerName ?? "Неизвестный игрок";
+            Logger.Info($"Результат ответа игрока {playerName}: {(message.IsCorrect ? "правильно" : "неправильно")}, новый счет: {message.NewScore}");
 
             if (message.IsCorrect)
             {
@@ -202,11 +225,14 @@ namespace Ubit_Slendermena_Client
             {
                 player.Score = message.NewScore;
                 UpdatePlayersList();
+                Logger.Debug($"Обновлен счет игрока {player.Username}: {player.Score}");
             }
         }
 
         private void HandleQuestionCompleted(ServerMessage message)
         {
+            Logger.Debug("Обработка завершения вопроса");
+
             if (_currentQuestion != null)
             {
                 // Отмечаем вопрос как отвеченный
@@ -223,6 +249,8 @@ namespace Ubit_Slendermena_Client
                     button.ForeColor = Color.Gray;
                     button.Enabled = false;
                     button.Text = "✓";
+
+                    Logger.Debug($"Вопрос отмечен как завершенный: категория {categoryIndex}, вопрос {questionIndex}");
                 }
             }
 
@@ -231,11 +259,15 @@ namespace Ubit_Slendermena_Client
 
         private void HandleQuestionTimeout(ServerMessage message)
         {
+            Logger.Warn($"Время на вопрос истекло. Правильный ответ: {message.CorrectAnswer}");
             UpdateGameStatus($"⏰ Время вышло! Правильный ответ: {message.CorrectAnswer}", Color.Red);
         }
 
         private void HandleGameOver(ServerMessage message)
         {
+            string winnerName = message.Winner?.Username ?? "Неизвестный";
+            Logger.Info($"Игра завершена. Победитель: {winnerName}");
+
             string winnerText = message.Winner != null
                 ? $"🏆 Победитель: {message.Winner.Username}!"
                 : "🎮 Игра окончена!";
@@ -255,14 +287,17 @@ namespace Ubit_Slendermena_Client
                     results += $"{medal} {i + 1}. {player.Username}: {player.Score} очков\n";
                 }
 
+                Logger.Info($"Показ итоговых результатов игры с {sortedPlayers.Count} игроками");
                 MessageBox.Show(results, "🎉 Игра завершена!", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             // Возвращаемся в меню через 5 секунд
+            Logger.Debug("Запуск таймера для автоматического закрытия формы");
             var exitTimer = new System.Windows.Forms.Timer { Interval = 5000 };
             exitTimer.Tick += (s, e) =>
             {
                 exitTimer.Stop();
+                Logger.Info("Автоматическое закрытие JeopardyGameForm");
                 UnsubscribeFromEvents();
                 this.Close();
             };
@@ -273,6 +308,7 @@ namespace Ubit_Slendermena_Client
         {
             if (!_networkClient.IsConnected)
             {
+                Logger.Error("Попытка выбора вопроса без соединения с сервером");
                 MessageBox.Show("Нет соединения с сервером!", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -281,13 +317,20 @@ namespace Ubit_Slendermena_Client
             var button = sender as Button;
             var tag = button?.Tag as dynamic;
 
-            if (tag == null) return;
+            if (tag == null)
+            {
+                Logger.Warn("Нажата кнопка вопроса без корректного тега");
+                return;
+            }
 
             int categoryIndex = tag.CategoryIndex;
             int questionIndex = tag.QuestionIndex;
 
+            Logger.Info($"Выбран вопрос: категория {categoryIndex}, вопрос {questionIndex}");
+
             if (_answeredQuestions[categoryIndex, questionIndex])
             {
+                Logger.Warn($"Попытка выбора уже отвеченного вопроса: категория {categoryIndex}, вопрос {questionIndex}");
                 UpdateGameStatus("❌ Этот вопрос уже был отвечен!", Color.Red);
                 return;
             }
@@ -300,6 +343,7 @@ namespace Ubit_Slendermena_Client
             {
                 int categoryId = categoryIndex + 1;
 
+                Logger.Debug($"Отправка запроса на выбор вопроса: CategoryId={categoryId}, PlayerId={_currentPlayer.Id}");
                 await _networkClient.SendMessageAsync(new
                 {
                     Type = "SelectQuestion",
@@ -311,6 +355,7 @@ namespace Ubit_Slendermena_Client
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, $"Ошибка при отправке запроса на выбор вопроса: категория {categoryIndex}, вопрос {questionIndex}");
                 UpdateGameStatus($"❌ Ошибка отправки: {ex.Message}", Color.Red);
 
                 button.Enabled = true;
@@ -321,6 +366,7 @@ namespace Ubit_Slendermena_Client
 
         private void UpdatePlayersList()
         {
+            Logger.Debug("Обновление списка игроков");
             _playersListBox.Items.Clear();
 
             var sortedPlayers = _players.OrderByDescending(p => p.Score).ToList();
@@ -345,6 +391,7 @@ namespace Ubit_Slendermena_Client
 
         private void UpdateGameStatus(string message, Color color)
         {
+            Logger.Debug($"Обновление статуса игры: {message}");
             if (_gameStatusLabel != null)
             {
                 _gameStatusLabel.Text = message;
@@ -360,6 +407,7 @@ namespace Ubit_Slendermena_Client
                 return;
             }
 
+            Logger.Error($"Соединение потеряно в JeopardyGameForm: {reason}");
             MessageBox.Show($"Соединение потеряно: {reason}", "Ошибка",
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
@@ -375,11 +423,13 @@ namespace Ubit_Slendermena_Client
                 return;
             }
 
+            Logger.Error(ex, "Ошибка соединения в JeopardyGameForm");
             UpdateGameStatus($"❌ Ошибка соединения: {ex.Message}", Color.Red);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            Logger.Info($"Закрытие JeopardyGameForm для игрока: {_currentPlayer?.Username}");
             UnsubscribeFromEvents();
             base.OnFormClosing(e);
         }

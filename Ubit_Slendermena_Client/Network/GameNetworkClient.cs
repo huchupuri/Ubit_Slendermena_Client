@@ -12,7 +12,6 @@ namespace GameClient.Network
         private bool _isConnected;
         private CancellationTokenSource _cts;
 
-
         public event EventHandler<ServerMessage> MessageReceived;
         public event EventHandler<string> ConnectionClosed;
         public event EventHandler<Exception> ErrorOccurred;
@@ -107,8 +106,6 @@ namespace GameClient.Network
             }
             catch (OperationCanceledException)
             {
-                // Нормальная отмена операции
-
                 _isConnected = false;
             }
             catch (WebSocketException ex)
@@ -130,6 +127,16 @@ namespace GameClient.Network
             await SendMessageAsync(new
             {
                 Type = "Login",
+                Username = username,
+                Password = password
+            });
+        }
+
+        public async Task RegisterAsync(string username, string password)
+        {
+            await SendMessageAsync(new
+            {
+                Type = "Register",
                 Username = username,
                 Password = password
             });

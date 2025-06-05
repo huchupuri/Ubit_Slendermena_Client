@@ -23,6 +23,7 @@
             txtPlayerCount = new TextBox();
             lblPlayerCount = new Label();
             btnCreate = new Button();
+            HostBtn = new Button();
             SuspendLayout();
             // 
             // lblTitle
@@ -46,7 +47,6 @@
             btnUploadQuestions.TabIndex = 1;
             btnUploadQuestions.Text = "ЗАГРУЗИТЬ ПАКЕТ ВОПРОСОВ";
             btnUploadQuestions.UseVisualStyleBackColor = false;
-            //btnUploadQuestions.Click += btnUploadQuestions_Click;
             // 
             // txtPlayerCount
             // 
@@ -77,12 +77,25 @@
             btnCreate.UseVisualStyleBackColor = false;
             btnCreate.Click += btnCreate_Click;
             // 
+            // HostBtn
+            // 
+            HostBtn.BackColor = Color.Yellow;
+            HostBtn.FlatStyle = FlatStyle.Flat;
+            HostBtn.Location = new Point(70, 349);
+            HostBtn.Name = "HostBtn";
+            HostBtn.Size = new Size(250, 40);
+            HostBtn.TabIndex = 5;
+            HostBtn.Text = "ПОДКЛЮЧИТЬСЯ";
+            HostBtn.UseVisualStyleBackColor = false;
+            HostBtn.Click += HostBtn_Click;
+            // 
             // NewGame
             // 
             BackColor = Color.Black;
             BackgroundImage = Properties.Resource.bigbrain;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(400, 600);
+            Controls.Add(HostBtn);
             Controls.Add(lblTitle);
             Controls.Add(btnUploadQuestions);
             Controls.Add(lblPlayerCount);
@@ -93,5 +106,7 @@
             ResumeLayout(false);
             PerformLayout();
         }
+
+        private Button HostBtn;
     }
 }

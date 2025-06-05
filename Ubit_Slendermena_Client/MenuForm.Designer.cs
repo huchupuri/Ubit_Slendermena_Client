@@ -38,32 +38,31 @@
             // 
             // PlayBtn
             // 
-            PlayBtn.BackColor = Color.Yellow;
             resources.ApplyResources(PlayBtn, "PlayBtn");
+            PlayBtn.BackColor = Color.Yellow;
             PlayBtn.Name = "PlayBtn";
             PlayBtn.UseVisualStyleBackColor = false;
             PlayBtn.Click += PlayBtn_Click;
             // 
             // ProfileBtn
             // 
-            ProfileBtn.BackColor = Color.Yellow;
             resources.ApplyResources(ProfileBtn, "ProfileBtn");
+            ProfileBtn.BackColor = Color.Yellow;
             ProfileBtn.Name = "ProfileBtn";
             ProfileBtn.UseVisualStyleBackColor = false;
-            //ProfileBtn.Click += ProfileBtn_Click;
+            ProfileBtn.Click += ProfileBtn_Click;
             // 
             // LocalizationBtn
             // 
-            LocalizationBtn.BackColor = Color.Yellow;
             resources.ApplyResources(LocalizationBtn, "LocalizationBtn");
+            LocalizationBtn.BackColor = Color.Yellow;
             LocalizationBtn.Name = "LocalizationBtn";
             LocalizationBtn.UseVisualStyleBackColor = false;
-            //LocalizationBtn.Click += LocalizationBtn_Click;
             // 
             // ExitBtn
             // 
-            ExitBtn.BackColor = Color.Yellow;
             resources.ApplyResources(ExitBtn, "ExitBtn");
+            ExitBtn.BackColor = Color.Yellow;
             ExitBtn.Name = "ExitBtn";
             ExitBtn.UseVisualStyleBackColor = false;
             // 

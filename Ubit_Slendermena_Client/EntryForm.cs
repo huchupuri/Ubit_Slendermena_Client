@@ -1,5 +1,6 @@
 ﻿using GameClient.Models;
 using GameClient.Network;
+using NLog;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -8,12 +9,14 @@ namespace Ubit_Slendermena_Client
 {
     public partial class EntryForm : Form
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private GameClient.Network.GameClient? _client;
         private bool _isConnecting = false;
         private bool _connected = false;
 
         public EntryForm(GameClient.Network.GameClient? _client)
         {
+            Logger.Info("Инициализация EntryForm");
             this._client = _client;
             InitializeComponent();
             InitializeClient();
@@ -22,29 +25,35 @@ namespace Ubit_Slendermena_Client
         private void InitializeClient()
         {
             string serverUrl = "ws://localhost:5000/";
-            _client = new GameClient.Network.GameClient(serverUrl);
+            Logger.Info($"Инициализация клиента {serverUrl}");
 
-            // Подписываемся на события клиента
+            _client = new GameClient.Network.GameClient(serverUrl);
             _client.MessageReceived += OnServerMessage;
             _client.ConnectionClosed += OnConnectionClosed;
             _client.ErrorOccurred += OnErrorOccurred;
+
+            Logger.Debug("События клиента подписаны");
         }
 
         private async Task<bool> ConnectToServerAsync()
         {
             if (_client == null)
             {
+                Logger.Warn("Клиент не инициализирован, выполняется повторная инициализация");
                 InitializeClient();
             }
 
             try
             {
+                Logger.Info("Попытка подключения к серверу");
                 await _client.ConnectAsync();
                 _connected = true;
+                Logger.Info("Успешное подключение к серверу");
                 return true;
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, "Ошибка подключения к серверу");
                 MessageBox.Show($"Ошибка подключения: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 _connected = false;
@@ -56,6 +65,8 @@ namespace Ubit_Slendermena_Client
         {
             try
             {
+                Logger.Info($"Успешная аутентификация пользователя: {message.Username}");
+
                 var player = new Player()
                 {
                     Id = message.Id,
@@ -65,17 +76,18 @@ namespace Ubit_Slendermena_Client
                     Wins = message.Wins
                 };
 
-                UnsubscribeFromEvents();
+                Logger.Debug($"Создан объект игрока: ID={player.Id}, Username={player.Username}, Games={player.TotalGames}, Wins={player.Wins}");
 
-                // Передаем клиент в MenuForm для дальнейшего использования
+                UnsubscribeFromEvents();
                 var menuForm = new MenuForm(player, _client);
 
+                Logger.Info("Переход к MenuForm");
                 this.Hide();
                 menuForm.Show();
-                //this.Close();
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, "Ошибка при переходе в меню");
                 MessageBox.Show($"Ошибка при переходе в меню: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -83,6 +95,7 @@ namespace Ubit_Slendermena_Client
 
         private void UnsubscribeFromEvents()
         {
+            Logger.Debug("Отписка от событий клиента");
             if (_client != null)
             {
                 _client.MessageReceived -= OnServerMessage;
@@ -101,29 +114,35 @@ namespace Ubit_Slendermena_Client
 
             try
             {
+                Logger.Debug($"Получено сообщение от сервера: {serverMessage.Type}");
+
                 switch (serverMessage.Type)
                 {
                     case "LoginSuccess":
+                        Logger.Info($"Успешный вход пользователя: {serverMessage.Username}");
                         HandleSuccessfulAuth(serverMessage, "Вход выполнен успешно!");
                         break;
 
                     case "RegisterSuccess":
+                        Logger.Info($"Успешная регистрация пользователя: {serverMessage.Username}");
                         HandleSuccessfulAuth(serverMessage, "Регистрация выполнена успешно!");
                         break;
-                        
+
                     case "Error":
-                        MessageBox.Show($"Ошибка сервера: {serverMessage.Message}", "Ошибка",
+                        Logger.Warn($"Получена ошибка от сервера: {serverMessage.Message}");
+                        MessageBox.Show($"Ошибка: {serverMessage.Message}", "Ошибка",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        EnableConnectButton();
+                        EnableButtons();
                         break;
 
                     default:
-                        Console.WriteLine($"Получено неизвестное сообщение: {serverMessage.Type}");
+                        Logger.Warn($"Получено неизвестное сообщение: {serverMessage.Type}");
                         break;
                 }
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, "Ошибка обработки сообщения от сервера");
                 MessageBox.Show($"Ошибка обработки сообщения: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -137,13 +156,14 @@ namespace Ubit_Slendermena_Client
                 return;
             }
 
+            Logger.Warn($"Соединение закрыто: {reason}");
             _connected = false;
             _isConnecting = false;
 
             MessageBox.Show($"Соединение закрыто: {reason}", "Соединение потеряно",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            EnableConnectButton();
+            EnableButtons();
         }
 
         private void OnErrorOccurred(object sender, Exception ex)
@@ -154,36 +174,46 @@ namespace Ubit_Slendermena_Client
                 return;
             }
 
+            Logger.Error(ex, "Произошла ошибка соединения");
             _connected = false;
             _isConnecting = false;
 
             MessageBox.Show($"Произошла ошибка: {ex.Message}", "Ошибка",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-            EnableConnectButton();
+            EnableButtons();
         }
 
-        private void EnableConnectButton()
+        private void EnableButtons()
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(EnableConnectButton));
+                Invoke(new Action(EnableButtons));
                 return;
             }
 
+            Logger.Debug("Активация кнопок интерфейса");
             btnConnect.Enabled = true;
-            btnConnect.Text = "Подключиться";
+            btnConnect.Text = "ВОЙТИ";
+            btnAddRoom.Enabled = true;
+            btnAddRoom.Text = "ЗАРЕГИСТРИРОВАТЬСЯ";
             _isConnecting = false;
         }
 
         private async void btnConnect_Click(object sender, EventArgs e)
         {
             if (_isConnecting)
+            {
+                Logger.Debug("Попытка повторного нажатия кнопки входа во время подключения");
                 return;
+            }
+
+            Logger.Info("Начало процесса входа в аккаунт");
 
             // Валидация входных данных
             if (string.IsNullOrWhiteSpace(AuthorizationTxt.Text))
             {
+                Logger.Warn("Попытка входа с пустым именем пользователя");
                 MessageBox.Show("Введите имя пользователя", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -191,90 +221,138 @@ namespace Ubit_Slendermena_Client
 
             if (string.IsNullOrWhiteSpace(PassswordTxt.Text))
             {
+                Logger.Warn("Попытка входа с пустым паролем");
                 MessageBox.Show("Введите пароль", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            string username = AuthorizationTxt.Text.Trim();
+            Logger.Info($"Попытка входа пользователя: {username}");
+
             _isConnecting = true;
             btnConnect.Enabled = false;
+            btnAddRoom.Enabled = false;
             btnConnect.Text = "Подключение...";
 
             try
             {
                 if (!_connected)
                 {
+                    Logger.Debug("Соединение не установлено, выполняется подключение");
                     bool connectionResult = await ConnectToServerAsync();
                     if (!connectionResult)
                     {
-                        EnableConnectButton();
+                        Logger.Error("Не удалось установить соединение для входа");
+                        EnableButtons();
                         return;
                     }
                 }
-
-                // Отправляем данные для авторизации
-                await _client.LoginAsync(AuthorizationTxt.Text.Trim(), PassswordTxt.Text);
+                Logger.Debug($"Отправка данных для входа пользователя: {username}");
+                await _client.LoginAsync(username, PassswordTxt.Text);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при авторизации: {ex.Message}", "Ошибка",
+                Logger.Error(ex, $"Ошибка при входе пользователя: {username}");
+                MessageBox.Show($"Ошибка при входе: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                EnableConnectButton();
+                EnableButtons();
             }
         }
-
         private async void btnAddRoom_Click(object sender, EventArgs e)
         {
             if (_isConnecting)
+            {
+                Logger.Debug("Попытка повторного нажатия кнопки регистрации во время подключения");
                 return;
+            }
+
+            Logger.Info("Начало процесса регистрации");
+
+            // Валидация входных данных
+            if (string.IsNullOrWhiteSpace(AuthorizationTxt.Text))
+            {
+                Logger.Warn("Попытка регистрации с пустым именем пользователя");
+                MessageBox.Show("Введите имя пользователя", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (AuthorizationTxt.Text.Trim().Length < 3)
+            {
+                Logger.Warn($"Попытка регистрации с коротким именем пользователя: {AuthorizationTxt.Text.Trim()}");
+                MessageBox.Show("Имя пользователя должно содержать минимум 3 символа", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(PassswordTxt.Text))
+            {
+                Logger.Warn("Попытка регистрации с пустым паролем");
+                MessageBox.Show("Введите пароль", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (PassswordTxt.Text.Length < 6)
+            {
+                Logger.Warn("Попытка регистрации с коротким паролем");
+                MessageBox.Show("Пароль должен содержать минимум 6 символов", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string username = AuthorizationTxt.Text.Trim();
+            Logger.Info($"Попытка регистрации пользователя: {username}");
 
             _isConnecting = true;
+            btnConnect.Enabled = false;
             btnAddRoom.Enabled = false;
-            btnAddRoom.Text = "Подключение...";
+            btnAddRoom.Text = "Регистрация...";
 
             try
             {
                 if (!_connected)
                 {
+                    Logger.Debug("Соединение не установлено, выполняется подключение");
                     bool connectionResult = await ConnectToServerAsync();
                     if (!connectionResult)
                     {
-                        btnAddRoom.Enabled = true;
-                        btnAddRoom.Text = "Создать комнату";
-                        _isConnecting = false;
+                        Logger.Error("Не удалось установить соединение для регистрации");
+                        EnableButtons();
                         return;
                     }
                 }
 
-                await _client.SelectQuestionAsync(1);
-                MessageBox.Show("Команда отправлена на сервер", "Информация",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Отправляем данные для регистрации
+                Logger.Debug($"Отправка данных для регистрации пользователя: {username}");
+                await _client.RegisterAsync(username, PassswordTxt.Text);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при отправке команды: {ex.Message}", "Ошибка",
+                Logger.Error(ex, $"Ошибка при регистрации пользователя: {username}");
+                MessageBox.Show($"Ошибка при регистрации: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                btnAddRoom.Enabled = true;
-                btnAddRoom.Text = "Создать комнату";
-                _isConnecting = false;
+                EnableButtons();
             }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            Logger.Info("Закрытие EntryForm");
             UnsubscribeFromEvents();
 
             if (_client != null && _connected)
             {
                 try
                 {
+                    Logger.Debug("Отключение от сервера при закрытии формы");
                     _client.DisconnectAsync().Wait(1000);
+                    Logger.Info("Успешное отключение от сервера");
                 }
                 catch (Exception ex)
                 {
+                    Logger.Error(ex, "Ошибка при отключении от сервера");
                     Console.WriteLine($"Ошибка при отключении: {ex.Message}");
                 }
             }

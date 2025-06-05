@@ -61,6 +61,34 @@ namespace Ubit_Slendermena_Client.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Авторизация.
+        /// </summary>
+        internal static string Authorization {
+            get {
+                return ResourceManager.GetString("Authorization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap AuthorizationBackground {
+            get {
+                object obj = ResourceManager.GetObject("AuthorizationBackground", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ошибка при авторизации: {0}.
+        /// </summary>
+        internal static string AuthorizationError {
+            get {
+                return ResourceManager.GetString("AuthorizationError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap bigbrain {
@@ -71,11 +99,146 @@ namespace Ubit_Slendermena_Client.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на введите логин.
+        ///   Ищет локализованную строку, похожую на Ошибка при отправке команды: {0}.
         /// </summary>
-        internal static string LoginUser {
+        internal static string CommandError {
             get {
-                return ResourceManager.GetString("LoginUser", resourceCulture);
+                return ResourceManager.GetString("CommandError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Команда отправлена на сервер.
+        /// </summary>
+        internal static string CommandSent {
+            get {
+                return ResourceManager.GetString("CommandSent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Подключение....
+        /// </summary>
+        internal static string Connecting {
+            get {
+                return ResourceManager.GetString("Connecting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ошибка подключения: {0}.
+        /// </summary>
+        internal static string ConnectionError {
+            get {
+                return ResourceManager.GetString("ConnectionError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Соединение потеряно.
+        /// </summary>
+        internal static string ConnectionLost {
+            get {
+                return ResourceManager.GetString("ConnectionLost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Соединение закрыто: {0}.
+        /// </summary>
+        internal static string ConnectionLostDetail {
+            get {
+                return ResourceManager.GetString("ConnectionLostDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на СОЗДАТЬ КОМНАТУ.
+        /// </summary>
+        internal static string CreateRoom {
+            get {
+                return ResourceManager.GetString("CreateRoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Введите пароль.
+        /// </summary>
+        internal static string EnterPassword {
+            get {
+                return ResourceManager.GetString("EnterPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Введите имя пользователя.
+        /// </summary>
+        internal static string EnterUsername {
+            get {
+                return ResourceManager.GetString("EnterUsername", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ошибка.
+        /// </summary>
+        internal static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на СВОЯ СВОЯ ИГРА.
+        /// </summary>
+        internal static string GameTitle {
+            get {
+                return ResourceManager.GetString("GameTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Произошла ошибка: {0}.
+        /// </summary>
+        internal static string GeneralError {
+            get {
+                return ResourceManager.GetString("GeneralError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Информация.
+        /// </summary>
+        internal static string Information {
+            get {
+                return ResourceManager.GetString("Information", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на ВОЙТИ.
+        /// </summary>
+        internal static string LoginButton {
+            get {
+                return ResourceManager.GetString("LoginButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на логин.
+        /// </summary>
+        internal static string LoginPlaceholder {
+            get {
+                return ResourceManager.GetString("LoginPlaceholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Вход выполнен успешно!.
+        /// </summary>
+        internal static string LoginSuccess {
+            get {
+                return ResourceManager.GetString("LoginSuccess", resourceCulture);
             }
         }
         
@@ -90,11 +253,56 @@ namespace Ubit_Slendermena_Client.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на .
+        ///   Ищет локализованную строку, похожую на Ошибка при переходе в меню: {0}.
         /// </summary>
-        internal static string PasswordUser {
+        internal static string MenuNavigationError {
             get {
-                return ResourceManager.GetString("PasswordUser", resourceCulture);
+                return ResourceManager.GetString("MenuNavigationError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ошибка обработки сообщения: {0}.
+        /// </summary>
+        internal static string MessageProcessingError {
+            get {
+                return ResourceManager.GetString("MessageProcessingError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на пароль.
+        /// </summary>
+        internal static string PasswordPlaceholder {
+            get {
+                return ResourceManager.GetString("PasswordPlaceholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на ЗАРЕГИСТРИРОВАТЬСЯ.
+        /// </summary>
+        internal static string RegisterButton {
+            get {
+                return ResourceManager.GetString("RegisterButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Регистрация выполнена успешно!.
+        /// </summary>
+        internal static string RegisterSuccess {
+            get {
+                return ResourceManager.GetString("RegisterSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ошибка сервера: {0}.
+        /// </summary>
+        internal static string ServerError {
+            get {
+                return ResourceManager.GetString("ServerError", resourceCulture);
             }
         }
     }

@@ -16,23 +16,21 @@
 
   <ItemGroup>
     <None Remove="BackgroundImages\AuthorizationBackground.jpg" />
+    <None Remove="NLog.config" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="BackgroundImages\AuthorizationBackground.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Properties\Resources.ru-RU.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </None>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Windsor" Version="6.0.0" />
+    <PackageReference Include="NLog" Version="5.5.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,11 +38,6 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resource.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.ru-RU.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 

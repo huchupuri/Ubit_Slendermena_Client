@@ -1,4 +1,5 @@
 ﻿using GameClient.Models;
+using NLog;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -7,6 +8,7 @@ namespace GameClient.Network
 {
     public class GameClient
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private ClientWebSocket _webSocket;
         private readonly string _serverUrl;
         private bool _isConnected;
@@ -22,12 +24,15 @@ namespace GameClient.Network
         {
             _serverUrl = serverUrl;
             _cts = new CancellationTokenSource();
+            Logger.Info($"GameClient создан с URL: {serverUrl}");
         }
 
         public async Task ConnectAsync()
         {
             try
             {
+                Logger.Info("Попытка подключения к серверу");
+
                 // Создаем новый WebSocket если предыдущий был закрыт
                 if (_webSocket?.State != WebSocketState.Open)
                 {
@@ -40,11 +45,14 @@ namespace GameClient.Network
                 await _webSocket.ConnectAsync(new Uri(_serverUrl), _cts.Token);
                 _isConnected = true;
 
+                Logger.Info("Успешное подключение к серверу");
+
                 // Запускаем прослушивание сообщений
                 _ = Task.Run(ReceiveMessagesAsync);
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, "Ошибка подключения к серверу");
                 _isConnected = false;
                 ErrorOccurred?.Invoke(this, ex);
                 throw;
@@ -54,11 +62,16 @@ namespace GameClient.Network
         public async Task SendMessageAsync(object message)
         {
             if (!IsConnected)
+            {
+                Logger.Error($"Попытка отправки сообщения без подключения: {_isConnected}, {_webSocket?.State}");
                 throw new InvalidOperationException($"Клиент {_isConnected}, {_webSocket?.State} не подключен к серверу");
+            }
 
             try
             {
                 string jsonMessage = JsonSerializer.Serialize(message);
+                Logger.Debug($"Отправка сообщения: {jsonMessage}");
+
                 byte[] messageBytes = Encoding.UTF8.GetBytes(jsonMessage);
 
                 await _webSocket.SendAsync(new ArraySegment<byte>(messageBytes),
@@ -66,6 +79,7 @@ namespace GameClient.Network
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, "Ошибка отправки сообщения");
                 ErrorOccurred?.Invoke(this, ex);
                 throw;
             }
@@ -77,6 +91,8 @@ namespace GameClient.Network
 
             try
             {
+                Logger.Debug("Начало прослушивания сообщений от сервера");
+
                 while (_isConnected && _webSocket.State == WebSocketState.Open && !_cts.Token.IsCancellationRequested)
                 {
                     WebSocketReceiveResult result = await _webSocket.ReceiveAsync(
@@ -87,14 +103,15 @@ namespace GameClient.Network
                         await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
                             "Закрытие по запросу сервера", CancellationToken.None);
                         _isConnected = false;
+                        Logger.Warn("Соединение закрыто сервером");
                         ConnectionClosed?.Invoke(this, "Соединение закрыто сервером");
-                        Console.WriteLine("закрыто");
                         break;
                     }
 
                     if (result.MessageType == WebSocketMessageType.Text)
                     {
                         string messageText = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                        Logger.Debug($"Получено сообщение: {messageText}");
 
                         // Преобразуем строку в объект ServerMessage
                         ServerMessage serverMessage = ServerMessage.FromJson(messageText);
@@ -106,17 +123,18 @@ namespace GameClient.Network
             }
             catch (OperationCanceledException)
             {
+                Logger.Debug("Прослушивание сообщений отменено");
                 _isConnected = false;
             }
             catch (WebSocketException ex)
             {
-                if (!IsConnected)
-                    throw new InvalidOperationException($"Клиент {_isConnected}, {_webSocket?.State} не подключен к серверу");
+                Logger.Error(ex, "WebSocket ошибка при получении сообщений");
                 _isConnected = false;
                 ConnectionClosed?.Invoke(this, $"Соединение прервано: {ex.Message}");
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, "Общая ошибка при получении сообщений");
                 _isConnected = false;
                 ErrorOccurred?.Invoke(this, ex);
             }
@@ -124,6 +142,7 @@ namespace GameClient.Network
 
         public async Task LoginAsync(string username, string password)
         {
+            Logger.Info($"Попытка входа пользователя: {username}");
             await SendMessageAsync(new
             {
                 Type = "Login",
@@ -134,6 +153,7 @@ namespace GameClient.Network
 
         public async Task RegisterAsync(string username, string password)
         {
+            Logger.Info($"Попытка регистрации пользователя: {username}");
             await SendMessageAsync(new
             {
                 Type = "Register",
@@ -142,8 +162,32 @@ namespace GameClient.Network
             });
         }
 
+        // НОВЫЙ МЕТОД: Создание игры
+        public async Task CreateGameAsync(int playerCount, string hostName)
+        {
+            Logger.Info($"Создание игры на {playerCount} игроков, хост: {hostName}");
+            await SendMessageAsync(new
+            {
+                Type = "CreateGame",
+                playerCount = playerCount,
+                hostName = hostName
+            });
+        }
+
+        // НОВЫЙ МЕТОД: Присоединение к игре
+        public async Task JoinGameAsync(string playerName)
+        {
+            Logger.Info($"Присоединение к игре игрока: {playerName}");
+            await SendMessageAsync(new
+            {
+                Type = "JoinGame",
+                playerName = playerName
+            });
+        }
+
         public async Task StartGameAsync(byte playerCount)
         {
+            Logger.Info($"Запуск игры с {playerCount} игроками");
             await SendMessageAsync(new
             {
                 Type = "StartGame",
@@ -153,6 +197,7 @@ namespace GameClient.Network
 
         public async Task SelectQuestionAsync(int categoryId)
         {
+            Logger.Debug($"Выбор вопроса из категории: {categoryId}");
             await SendMessageAsync(new
             {
                 Type = "SelectQuestion",
@@ -162,6 +207,7 @@ namespace GameClient.Network
 
         public async Task SubmitAnswerAsync(int questionId, string answer)
         {
+            Logger.Info($"Отправка ответа на вопрос {questionId}: {answer}");
             await SendMessageAsync(new
             {
                 Type = "Answer",
@@ -172,16 +218,19 @@ namespace GameClient.Network
 
         public async Task DisconnectAsync()
         {
+            Logger.Info("Отключение от сервера");
+
             if (_isConnected && _webSocket?.State == WebSocketState.Open)
             {
                 try
                 {
                     await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
                         "Клиент отключается", CancellationToken.None);
+                    Logger.Info("Успешное отключение от сервера");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Ошибка при отключении: {ex.Message}");
+                    Logger.Error(ex, "Ошибка при отключении от сервера");
                 }
             }
 
@@ -191,6 +240,7 @@ namespace GameClient.Network
 
         public void Dispose()
         {
+            Logger.Debug("Освобождение ресурсов GameClient");
             _cts?.Cancel();
             _webSocket?.Dispose();
             _cts?.Dispose();

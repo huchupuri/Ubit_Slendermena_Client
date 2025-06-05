@@ -9,6 +9,10 @@ namespace Ubit_Slendermena_Client
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly Player _player;
         private readonly GameClient.Network.GameClient _networkClient;
+        private bool _gameCreated = false;
+        private bool _isHost = false;
+        private int _requiredPlayers = 0;
+        private int _currentPlayers = 0;
 
         public NewGame(Player player, GameClient.Network.GameClient client)
         {
@@ -17,11 +21,34 @@ namespace Ubit_Slendermena_Client
             InitializeComponent();
             _player = player;
             _networkClient = client;
-
-            // Подписываемся на события ПОСЛЕ инициализации компонентов
             SubscribeToEvents();
 
+            // Обновляем интерфейс
+            UpdateUI();
+
             Logger.Debug($"NewGame создана для игрока ID={player?.Id}");
+        }
+
+        private void UpdateUI()
+        {
+            if (_gameCreated)
+            {
+                btnCreate.Text = _isHost ? "Игра создана" : "Игра найдена";
+                btnCreate.BackColor = Color.Green;
+                btnCreate.Enabled = false;
+
+                HostBtn.Text = "Ожидание игроков...";
+                HostBtn.Enabled = false;
+            }
+            else
+            {
+                btnCreate.Text = "Создать игру";
+                btnCreate.BackColor = SystemColors.Control;
+                btnCreate.Enabled = true;
+
+                HostBtn.Text = "Присоединиться к игре";
+                HostBtn.Enabled = true;
+            }
         }
 
         private void SubscribeToEvents()
@@ -49,9 +76,9 @@ namespace Ubit_Slendermena_Client
         private void OpenGameForm()
         {
             Logger.Info("Переход к JeopardyGameForm");
-            // Отписываемся от событий перед передачей клиента
             UnsubscribeFromEvents();
             var gameForm = new JeopardyGameForm(_player, _networkClient);
+            this.Hide();
             gameForm.Show();
         }
 
@@ -72,12 +99,21 @@ namespace Ubit_Slendermena_Client
             }
         }
 
+        // СОЗДАНИЕ ИГРЫ
         private async void btnCreate_Click(object sender, EventArgs e)
         {
             Logger.Info($"Игрок {_player?.Username} нажал кнопку создания игры");
 
             try
             {
+                // Проверяем, не создана ли уже игра
+                if (_gameCreated)
+                {
+                    MessageBox.Show("Игра уже создана! Дождитесь подключения игроков.", "Информация",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
                 // Проверяем соединение
                 if (!_networkClient.IsConnected)
                 {
@@ -100,11 +136,11 @@ namespace Ubit_Slendermena_Client
                 btnCreate.Enabled = false;
                 btnCreate.Text = "Создание...";
 
-                await _networkClient.SendMessageAsync(new
-                {
-                    Type = "StartGame",
-                    playerCount = playerCount
-                });
+                _requiredPlayers = playerCount;
+                _isHost = true;
+
+                // Используем новый метод CreateGameAsync
+                await _networkClient.CreateGameAsync(playerCount, _player.Username);
 
                 Logger.Debug("Запрос на создание игры отправлен");
             }
@@ -116,6 +152,39 @@ namespace Ubit_Slendermena_Client
 
                 btnCreate.Enabled = true;
                 btnCreate.Text = "Создать игру";
+            }
+        }
+
+        // ПРИСОЕДИНЕНИЕ К ИГРЕ
+        private async void HostBtn_Click(object sender, EventArgs e)
+        {
+            Logger.Info($"Игрок {_player?.Username} нажал кнопку присоединения к игре");
+
+            try
+            {
+                // Проверяем соединение
+                if (!_networkClient.IsConnected)
+                {
+                    Logger.Warn("Попытка присоединения к игре без соединения с сервером");
+                    MessageBox.Show("Нет соединения с сервером", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                HostBtn.Enabled = false;
+                HostBtn.Text = "Подключение...";
+                Logger.Debug("Отправка запроса на присоединение к игре");
+                // Используем новый метод JoinGameAsync
+                await _networkClient.JoinGameAsync(_player.Username);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Ошибка при присоединении к игре для игрока {_player?.Username}");
+                MessageBox.Show($"Ошибка при присоединении к игре: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                HostBtn.Enabled = true;
+                HostBtn.Text = "Присоединиться к игре";
             }
         }
 
@@ -133,9 +202,79 @@ namespace Ubit_Slendermena_Client
 
                 switch (message.Type)
                 {
+                    case "GameCreated":
+                        Logger.Info("Игра успешно создана");
+                        _gameCreated = true;
+                        _currentPlayers = 1; // Хост уже в игре
+                        UpdateUI();
+                        OpenGameForm();
+
+
+                        MessageBox.Show($"Игра создана! Ожидание игроков ({_currentPlayers}/{_requiredPlayers})", "Успех",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        break;
+
+                    case "GameJoined":
+                        Logger.Info("Успешное присоединение к игре");
+                        _gameCreated = true;
+                        _isHost = false;
+                        UpdateUI();
+
+                        MessageBox.Show("Вы успешно присоединились к игре!", "Успех",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        break;
+
+                    case "PlayerJoined":
+                        Logger.Info($"Игрок присоединился: {message.PlayerName}");
+                        _currentPlayers++;
+
+                        if (_isHost)
+                        {
+                            MessageBox.Show($"Игрок {message.PlayerName} присоединился! ({_currentPlayers}/{_requiredPlayers})",
+                                "Новый игрок", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+
+                        // Проверяем, достаточно ли игроков для начала
+                        if (_currentPlayers >= _requiredPlayers)
+                        {
+                            Logger.Info("Достаточно игроков для начала игры");
+                            MessageBox.Show("Все игроки подключились! Игра начинается...", "Игра начинается",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        break;
+
                     case "GameStarted":
                         Logger.Info("Получено уведомление о начале игры");
-                        OpenGameForm();
+
+                        // Проверяем, достаточно ли игроков
+                        if (message.Players?.Count >= _requiredPlayers || _requiredPlayers == 0)
+                        {
+                            OpenGameForm();
+                        }
+                        else
+                        {
+                            Logger.Warn($"Недостаточно игроков для начала: {message.Players?.Count}/{_requiredPlayers}");
+                            MessageBox.Show($"Недостаточно игроков для начала игры! Подключено: {message.Players?.Count}, требуется: {_requiredPlayers}",
+                                "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                        break;
+
+                    case "GameFull":
+                        Logger.Warn("Игра заполнена");
+                        MessageBox.Show("Игра заполнена. Попробуйте позже.", "Информация",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        HostBtn.Enabled = true;
+                        HostBtn.Text = "Присоединиться к игре";
+                        break;
+
+                    case "NoGameAvailable":
+                        Logger.Warn("Нет доступных игр");
+                        MessageBox.Show("Нет доступных игр для подключения. Создайте новую игру.", "Информация",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        HostBtn.Enabled = true;
+                        HostBtn.Text = "Присоединиться к игре";
                         break;
 
                     case "Error":
@@ -143,21 +282,19 @@ namespace Ubit_Slendermena_Client
                         MessageBox.Show($"Ошибка: {message.Message}", "Ошибка",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-                        btnCreate.Enabled = true;
-                        btnCreate.Text = "Создать игру";
-                        break;
+                        // Восстанавливаем состояние кнопок
+                        if (!_gameCreated)
+                        {
+                            btnCreate.Enabled = true;
+                            btnCreate.Text = "Создать игру";
+                        }
 
-                    case "PlayerJoined":
-                        Logger.Info($"Игрок присоединился к игре: {message.Message}");
-                        MessageBox.Show($"Игрок присоединился: {message.Message}", "Информация",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Можно добавить логику обновления списка игроков
-                        OpenGameForm();
+                        HostBtn.Enabled = true;
+                        HostBtn.Text = "Присоединиться к игре";
                         break;
 
                     default:
                         Logger.Warn($"Получено неизвестное сообщение в NewGame: {message.Type}");
-                        Console.WriteLine($"Неизвестное сообщение: {message.Type}");
                         break;
                 }
             }
@@ -181,7 +318,12 @@ namespace Ubit_Slendermena_Client
             MessageBox.Show($"Соединение потеряно: {reason}", "Ошибка",
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-            // Возвращаемся к предыдущей форме или закрываем
+            // Сбрасываем состояние
+            _gameCreated = false;
+            _isHost = false;
+            _currentPlayers = 0;
+            UpdateUI();
+
             this.Close();
         }
 
@@ -201,44 +343,8 @@ namespace Ubit_Slendermena_Client
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             Logger.Info($"Закрытие NewGame для игрока: {_player?.Username}");
-            // Отписываемся от событий при закрытии формы
             UnsubscribeFromEvents();
             base.OnFormClosing(e);
-        }
-
-        async private void HostBtn_Click(object sender, EventArgs e)
-        {
-            Logger.Info($"Игрок {_player?.Username} нажал кнопку присоединения к игре");
-
-            try
-            {
-                // Проверяем соединение
-                if (!_networkClient.IsConnected)
-                {
-                    Logger.Warn("Попытка присоединения к игре без соединения с сервером");
-                    MessageBox.Show("Нет соединения с сервером", "Ошибка",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                btnCreate.Enabled = false;
-                btnCreate.Text = "Подключение...";
-
-                Logger.Debug("Отправка запроса на присоединение к игре");
-                await _networkClient.SendMessageAsync(new
-                {
-                    Type = "JoinGame"
-                });
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, $"Ошибка при присоединении к игре для игрока {_player?.Username}");
-                MessageBox.Show($"Ошибка при присоединении к игре: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                btnCreate.Enabled = true;
-                btnCreate.Text = "Присоединиться к игре";
-            }
         }
     }
 }

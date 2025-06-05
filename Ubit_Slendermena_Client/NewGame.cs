@@ -78,7 +78,7 @@ namespace Ubit_Slendermena_Client
             Logger.Info("Переход к JeopardyGameForm");
             UnsubscribeFromEvents();
             var gameForm = new JeopardyGameForm(_player, _networkClient);
-            this.Hide();
+            //this.Hide();
             gameForm.Show();
         }
 
@@ -234,7 +234,7 @@ namespace Ubit_Slendermena_Client
                                 "Новый игрок", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
 
-                        // Проверяем, достаточно ли игроков для начала
+                        // Проверяем, достаточно ли игроков для начала 
                         if (_currentPlayers >= _requiredPlayers)
                         {
                             Logger.Info("Достаточно игроков для начала игры");

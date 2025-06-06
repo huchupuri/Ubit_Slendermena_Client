@@ -1,9 +1,9 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using GameClient.Models;
+using Ubit_Slendermena_Client.Models;
 
-namespace GameClient.Network;
+namespace Ubit_Slendermena_Client.Network;
 
 public class GameNetworkClient
 {

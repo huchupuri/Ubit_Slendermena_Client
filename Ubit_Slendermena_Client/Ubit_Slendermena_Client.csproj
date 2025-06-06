@@ -26,6 +26,8 @@
 
   <ItemGroup>
     <PackageReference Include="Castle.Windsor" Version="6.0.0" />
+    <PackageReference Include="FluentAssertions" Version="8.3.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

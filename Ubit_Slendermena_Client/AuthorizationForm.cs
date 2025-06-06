@@ -1,5 +1,5 @@
-﻿using GameClient.Forms;
-using GameClient.Network;
+﻿using Ubit_Slendermena_Client.Forms;
+using Ubit_Slendermena_Client.Network;
 using Ubit_Slendermena_Client.Technical;
 
 

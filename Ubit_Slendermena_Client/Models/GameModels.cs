@@ -1,4 +1,4 @@
-﻿namespace GameClient.Models;
+﻿namespace Ubit_Slendermena_Client.Models;
 
 public class Category
 {

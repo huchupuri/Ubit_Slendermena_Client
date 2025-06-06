@@ -1,7 +1,7 @@
-﻿using GameClient.Models;
-using GameClient.Network;
+﻿using Ubit_Slendermena_Client.Models;
+using Ubit_Slendermena_Client.Network;
 
-namespace GameClient.Forms;
+namespace Ubit_Slendermena_Client.Forms;
 
 public partial class GameForm : Form
 {

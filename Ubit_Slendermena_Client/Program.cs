@@ -1,6 +1,6 @@
-using GameClient.Forms;
+using Ubit_Slendermena_Client.Forms;
 
-namespace GameClient;
+namespace Ubit_Slendermena_Client;
 
 internal static class Program
 {

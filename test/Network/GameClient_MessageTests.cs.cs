@@ -54,9 +54,8 @@ namespace GameClient.Tests.Network
                 tcs.SetResult(msg);
             };
 
-            // Подменяем ReceiveAsync — имитируем получение сообщения
             var mockBuffer = Encoding.UTF8.GetBytes(@"{
-                ""Type"": ""Categories"",
+                ""Type"": ""категория"",
                 ""Categories"": [
                     {""Id"": 1, ""Name"": ""История""},
                     {""Id"": 2, ""Name"": ""География""}
@@ -72,7 +71,7 @@ namespace GameClient.Tests.Network
             // Assert
             var result = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(3));
             result.Should().NotBeNull();
-            result.Type.Should().Be("Categories");
+            result.Type.Should().Be("категория");
             result.Categories.Should().HaveCount(2);
             result.Categories[0].Name.Should().Be("История");
             result.Categories[1].Name.Should().Be("География");
@@ -92,7 +91,7 @@ namespace GameClient.Tests.Network
             };
 
             var mockBuffer = Encoding.UTF8.GetBytes(@"{
-                ""Type"": ""LoginResult"",
+                ""Type"": ""результаты"",
                 ""Player"": {
                     ""Id"": ""9f6579dd-2d8b-4d3e-ba1f-20ad8a32f58b"",
                     ""Username"": ""testuser"",
@@ -111,7 +110,7 @@ namespace GameClient.Tests.Network
             // Assert
             var result = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(3));
             result.Should().NotBeNull();
-            result.Type.Should().Be("LoginResult");
+            result.Type.Should().Be("результаты");
             result.Player.Should().NotBeNull();
             result.Player.Username.Should().Be("testuser");
             result.Player.Score.Should().Be(1000);
@@ -132,7 +131,7 @@ namespace GameClient.Tests.Network
             };
 
             var mockBuffer = Encoding.UTF8.GetBytes(@"{
-                ""Type"": ""AnswerResult"",
+                ""Type"": ""ответ"",
                 ""IsCorrect"": true,
                 ""CorrectAnswer"": ""Москва"",
                 ""NewScore"": 500
@@ -147,7 +146,7 @@ namespace GameClient.Tests.Network
             // Assert
             var result = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(3));
             result.Should().NotBeNull();
-            result.Type.Should().Be("AnswerResult");
+            result.Type.Should().Be("ответ");
             result.IsCorrect.Should().BeTrue();
             result.CorrectAnswer.Should().Be("Москва");
             result.NewScore.Should().Be(500);

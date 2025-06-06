@@ -61,11 +61,31 @@ namespace Ubit_Slendermena_Client.Properties {
         }
         
         /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap bigbrain {
+            get {
+                object obj = ResourceManager.GetObject("bigbrain", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на введите логин.
         /// </summary>
         internal static string LoginUser {
             get {
                 return ResourceManager.GetString("LoginUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap menufback {
+            get {
+                object obj = ResourceManager.GetObject("menufback", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

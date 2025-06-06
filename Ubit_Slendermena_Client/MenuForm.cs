@@ -20,6 +20,11 @@ namespace Ubit_Slendermena_Client
         private readonly Player _player;
         private readonly GameClient.Network.GameClient _client;
 
+        /// <summary>
+        /// конструктор класс MenuForm
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="client"></param>
         public MenuForm(Player player, GameClient.Network.GameClient client)
         {
             Logger.Info($"Инициализация MenuForm для игрока: {player?.Username}");

@@ -13,7 +13,10 @@ namespace Ubit_Slendermena_Client
         private GameClient.Network.GameClient? _client;
         private bool _isConnecting = false;
         private bool _connected = false;
-
+        /// <summary>
+        /// конструктор класса EntryForm
+        /// </summary>
+        /// <param name="_client"></param>
         public EntryForm(GameClient.Network.GameClient? _client)
         {
             Logger.Info("Инициализация EntryForm");

@@ -8,11 +8,12 @@ namespace GameClient.Network
 {
     public class GameClient
     {
+
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private ClientWebSocket _webSocket;
+        public ClientWebSocket _webSocket;
         private readonly string _serverUrl;
-        private bool _isConnected;
-        private CancellationTokenSource _cts;
+        public bool _isConnected;
+        public CancellationTokenSource _cts;
 
         public event EventHandler<ServerMessage> MessageReceived;
         public event EventHandler<string> ConnectionClosed;
@@ -79,7 +80,7 @@ namespace GameClient.Network
             }
         }
 
-        private async Task ReceiveMessagesAsync()
+        public async Task ReceiveMessagesAsync()
         {
             byte[] buffer = new byte[16384]; 
 

@@ -15,7 +15,51 @@
             }
             base.Dispose(disposing);
         }
+        private void InitializeQuestionForm()
+        {
+            this.Text = $"Вопрос - {_question.CategoryName}";
+            this.Size = new Size(600, 400);
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
 
+            // Отображаем информацию о вопросе
+            labelQuestion.Text = _question.Text;
+
+            // Добавляем информацию о категории и стоимости
+            var categoryLabel = new Label
+            {
+                Text = $"Категория: {_question.CategoryName}",
+                Location = new Point(20, 20),
+                Size = new Size(560, 25),
+                Font = new Font("Arial", 12, FontStyle.Bold),
+                ForeColor = Color.DarkBlue
+            };
+
+            var priceLabel = new Label
+            {
+                Text = $"Стоимость: {_question.Price} очков",
+                Location = new Point(20, 50),
+                Size = new Size(560, 25),
+                Font = new Font("Arial", 12, FontStyle.Bold),
+                ForeColor = Color.Green
+            };
+            var timerLabel = new Label
+            {
+                Name = "timerLabel",
+                Text = $"⏰ Осталось: {_timeLeft} сек",
+                Location = new Point(20, 80),
+                Size = new Size(200, 25),
+                Font = new Font("Arial", 10, FontStyle.Bold),
+                ForeColor = Color.Red
+            };
+
+            this.Controls.Add(categoryLabel);
+            this.Controls.Add(priceLabel);
+            this.Controls.Add(timerLabel);
+            textBoxAnswer.Focus();
+        }
         private void InitializeComponent()
         {
             labelQuestion = new Label();

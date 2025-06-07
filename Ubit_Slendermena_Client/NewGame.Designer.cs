@@ -33,9 +33,9 @@
             lblTitle.ForeColor = Color.Orange;
             lblTitle.Location = new Point(70, 30);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(276, 40);
+            lblTitle.Size = new Size(228, 40);
             lblTitle.TabIndex = 0;
-            lblTitle.Text = "Создание игры";
+            lblTitle.Text = "Create Game";
             // 
             // btnUploadQuestions
             // 
@@ -45,16 +45,16 @@
             btnUploadQuestions.Name = "btnUploadQuestions";
             btnUploadQuestions.Size = new Size(250, 40);
             btnUploadQuestions.TabIndex = 1;
-            btnUploadQuestions.Text = "ЗАГРУЗИТЬ ПАКЕТ ВОПРОСОВ";
+            btnUploadQuestions.Text = Properties.NewGame.Resources.btnUploadQuestions_Text;
             btnUploadQuestions.UseVisualStyleBackColor = false;
             btnUploadQuestions.Click += btnUploadQuestions_Click;
             // 
             // txtPlayerCount
             // 
-            txtPlayerCount.Location = new Point(70, 200);
+            txtPlayerCount.Location = new Point(70, 215);
             txtPlayerCount.Name = "txtPlayerCount";
             txtPlayerCount.Size = new Size(250, 27);
-            txtPlayerCount.TabIndex = 3;
+            txtPlayerCount.TabIndex = 6;
             // 
             // lblPlayerCount
             // 
@@ -62,9 +62,9 @@
             lblPlayerCount.ForeColor = Color.White;
             lblPlayerCount.Location = new Point(70, 170);
             lblPlayerCount.Name = "lblPlayerCount";
-            lblPlayerCount.Size = new Size(151, 20);
+            lblPlayerCount.Size = new Size(132, 20);
             lblPlayerCount.TabIndex = 2;
-            lblPlayerCount.Text = "Количество игроков";
+            lblPlayerCount.Text = "Number of players";
             // 
             // btnCreate
             // 
@@ -74,7 +74,7 @@
             btnCreate.Name = "btnCreate";
             btnCreate.Size = new Size(250, 40);
             btnCreate.TabIndex = 4;
-            btnCreate.Text = "СОЗДАТЬ";
+            btnCreate.Text = Properties.NewGame.Resources.btnCreate;
             btnCreate.UseVisualStyleBackColor = false;
             btnCreate.Click += btnCreate_Click;
             // 
@@ -86,7 +86,7 @@
             HostBtn.Name = "HostBtn";
             HostBtn.Size = new Size(250, 40);
             HostBtn.TabIndex = 5;
-            HostBtn.Text = "ПОДКЛЮЧИТЬСЯ";
+            HostBtn.Text = Properties.NewGame.Resources.HostBtn;
             HostBtn.UseVisualStyleBackColor = false;
             HostBtn.Click += HostBtn_Click;
             // 
@@ -103,7 +103,7 @@
             Controls.Add(txtPlayerCount);
             Controls.Add(btnCreate);
             Name = "NewGame";
-            Text = "Создание игры";
+            Text = "Create Game";
             ResumeLayout(false);
             PerformLayout();
         }

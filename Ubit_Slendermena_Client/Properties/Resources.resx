@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, ...</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, ...</value>
+  </resheader>
+
+  <data name="LoginLabel" xml:space="preserve"><value>Authorization</value></data>
+  <data name="LoginPlaceholder" xml:space="preserve"><value>login</value></data>
+  <data name="PasswordPlaceholder" xml:space="preserve"><value>password</value></data>
+  <data name="LoginButton" xml:space="preserve"><value>LOGIN</value></data>
+  <data name="RegisterButton" xml:space="preserve"><value>REGISTER</value></data>
+  <data name="GameTitle" xml:space="preserve"><value>Custom Game</value></data>
+</root>

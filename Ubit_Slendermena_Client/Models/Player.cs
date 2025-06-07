@@ -16,4 +16,5 @@ namespace GameClient.Models
         public int Wins { get; set; } = 0;
         public double WinRate => TotalGames > 0 ? (double)Wins / TotalGames * 100 : 0;
     }
+
 }

@@ -119,8 +119,6 @@ namespace GameClient.Network
                         string messageText = messageBuilder.ToString();
                         Logger.Debug($"Получено сообщение: {messageText}");
                         ServerMessage serverMessage = ServerMessage.FromJson(messageText);
-
-                        // Вызываем событие с объектом ServerMessage
                         MessageReceived?.Invoke(this, serverMessage);
                     }
                 }
@@ -130,15 +128,9 @@ namespace GameClient.Network
                 Logger.Debug("Прослушивание сообщений отменено");
                 _isConnected = false;
             }
-            catch (WebSocketException ex)
-            {
-                Logger.Error(ex, "WebSocket ошибка при получении сообщений");
-                _isConnected = false;
-                ConnectionClosed?.Invoke(this, $"Соединение прервано: {ex.Message}");
-            }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Общая ошибка при получении сообщений");
+                Logger.Error(ex);
                 _isConnected = false;
                 ErrorOccurred?.Invoke(this, ex);
             }
@@ -195,17 +187,6 @@ namespace GameClient.Network
                 playerName = playerName
             });
         }
-
-        public async Task StartGameAsync(byte playerCount)
-        {
-            Logger.Info($"Запуск игры с {playerCount} игроками");
-            await SendMessageAsync(new
-            {
-                Type = "StartGame",
-                playerCount
-            });
-        }
-
         public async Task SelectQuestionAsync(int categoryId)
         {
             Logger.Debug($"Выбор вопроса из категории: {categoryId}");

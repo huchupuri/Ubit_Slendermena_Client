@@ -24,13 +24,15 @@ namespace Ubit_Slendermena_Client
         private int _timeLeft = 60;
         private bool _isMyTurn = true;
 
-        public JeopardyGameForm(Player currentPlayer, GameClient.Network.GameClient client)
+        public JeopardyGameForm(Player currentPlayer, GameClient.Network.GameClient client, List<Player> players)
         {
             Logger.Info($"Инициализация JeopardyGameForm для игрока: {currentPlayer?.Username}");
+            _players = players ?? new List<Player>(); 
 
             _currentPlayer = currentPlayer;
             _networkClient = client;
             InitializeComponent();
+            InitializePlayersList();
             SubscribeToEvents();
 
             if (!_networkClient.IsConnected)
@@ -42,6 +44,35 @@ namespace Ubit_Slendermena_Client
 
             Logger.Debug($"JeopardyGameForm успешно создана для игрока ID={currentPlayer?.Id}");
         }
+
+        private void InitializePlayersList()
+        {
+            Logger.Debug("Инициализация списка игроков");
+            _playersListBox.Items.Clear();
+
+            if (_players?.Any() == true)
+            {
+                Logger.Info($"Добавление {_players.Count} игроков в список");
+                foreach (var player in _players)
+                {
+                    string playerInfo = $"{player.Username}";
+                    if (player.Id == _currentPlayer?.Id)
+                    {
+                        playerInfo += " (вы)";
+                    }
+                    playerInfo += $" - {player.Score} очков";
+
+                    _playersListBox.Items.Add(playerInfo);
+                    Logger.Debug($"Добавлен игрок: {playerInfo}");
+                }
+            }
+            else
+            {
+                Logger.Warn("Список игроков пуст или null");
+                _playersListBox.Items.Add("Загрузка игроков...");
+            }
+        }
+
 
         private void SubscribeToEvents()
         {
@@ -141,7 +172,13 @@ namespace Ubit_Slendermena_Client
                         CategoryId = serverMessage.Question.CategoryId,
                         CategoryName = serverMessage.Question.CategoryName
                     };
-
+                    var btn = _gameButtons[question.CategoryId-1, question.Id - 6* question.CategoryId + 6]; // [i, 0] — это заголовок категории
+                    if (btn != null)
+                    {
+                        btn.Enabled = false;
+                        btn.BackColor = Color.DarkGray;
+                        btn.Text = "закрыт";
+                    }
                     Logger.Info($"Показ вопроса: ID={question.Id}, Цена={question.Price}, Категория={question.CategoryName}");
                     ShowQuestionInForm(question);
                 }
@@ -178,20 +215,46 @@ namespace Ubit_Slendermena_Client
             if (message.Categories?.Any() == true)
             {
                 _categories = message.Categories;
+                Logger.Info($"Загружено {_categories.Count} категорий");
+
+                // Обновляем заголовки категорий
                 for (int i = 0; i < Math.Min(_categories.Count, 6); i++)
                 {
-                    _gameButtons[i, 0].Text = _categories[i].Name;
+                    if (_gameButtons[i, 0] != null)
+                    {
+                        _gameButtons[i, 0].Text = _categories[i].Name;
+                        Logger.Debug($"Установлена категория {i}: {_categories[i].Name}");
+                    }
                 }
             }
 
+            // ИСПРАВЛЕНИЕ: Правильная обработка списка игроков
             if (message.Players?.Any() == true)
             {
-                _players = message.Players;
-                Logger.Info($"Загружено {_players.Count} игроков");
+                Logger.Info($"Получен список игроков от сервера: {message.Players.Count}");
+
+                // Обновляем локальный список игроков
+                _players.Clear();
+                foreach (var serverPlayer in message.Players)
+                {
+                    var player = new Player
+                    {
+                        Id = serverPlayer.Id,
+                        Username = serverPlayer.Username,
+                        Score = serverPlayer.Score
+                    };
+                    _players.Add(player);
+                    Logger.Debug($"Добавлен игрок: {player.Username} (Score: {player.Score})");
+                }
+
                 UpdatePlayersList();
             }
+            else
+            {
+                Logger.Warn("Сервер не прислал список игроков или список пуст");
+            }
 
-            UpdateGameStatus("Игра анчалась", Color.Green);
+            UpdateGameStatus("Игра началась! Выберите вопрос.", Color.Green);
         }
 
         private void HandleAnswerResult(ServerMessage message)
@@ -201,20 +264,29 @@ namespace Ubit_Slendermena_Client
 
             if (message.IsCorrect)
             {
-                UpdateGameStatus($"{playerName} ответил правильно! (+{_currentQuestion?.Price} очков)", Color.Green);
+                UpdateGameStatus($"✅ {playerName} ответил правильно! (+{_currentQuestion?.Price} очков)", Color.Green);
             }
             else
             {
-                UpdateGameStatus($"{playerName} ответил неправильно (-{_currentQuestion?.Price} очков)", Color.Red);
+                UpdateGameStatus($"❌ {playerName} ответил неправильно (-{_currentQuestion?.Price} очков)", Color.Red);
             }
 
-            // Обновляем счет игрока
             var player = _players.FirstOrDefault(p => p.Id == message.Id);
             if (player != null)
             {
                 player.Score = message.NewScore;
-                UpdatePlayersList();
                 Logger.Debug($"Обновлен счет игрока {player.Username}: {player.Score}");
+                UpdatePlayersList(); 
+            }
+            else
+            {
+                var playerByName = _players.FirstOrDefault(p => p.Username == playerName);
+                if (playerByName != null)
+                {
+                    playerByName.Score = message.NewScore;
+                    Logger.Debug($"Обновлен счет игрока по имени {playerByName.Username}: {playerByName.Score}");
+                    UpdatePlayersList();
+                }
             }
         }
 
@@ -263,6 +335,8 @@ namespace Ubit_Slendermena_Client
             // Показываем результаты
             if (message.Players?.Any() == true)
             {
+                _players = message.Players;
+                UpdatePlayersList();
                 string results = "📊 ИТОГОВЫЕ РЕЗУЛЬТАТЫ:\n\n";
                 var sortedPlayers = message.Players.OrderByDescending(p => p.Score).ToList();
 
@@ -321,10 +395,6 @@ namespace Ubit_Slendermena_Client
                 return;
             }
 
-            button.Enabled = false;
-            button.BackColor = Color.Gray;
-            button.Text = "...";
-
             try
             {
                 int categoryId = categoryIndex + 1;
@@ -333,7 +403,8 @@ namespace Ubit_Slendermena_Client
                 await _networkClient.SendMessageAsync(new
                 {
                     Type = "SelectQuestion",
-                    CategoryId = categoryId,
+                    QuestionId = questionIndex+1,
+                    CategoryId = categoryIndex+1,
                     PlayerId = _currentPlayer.Id
                 });
 
@@ -353,27 +424,44 @@ namespace Ubit_Slendermena_Client
         private void UpdatePlayersList()
         {
             Logger.Debug("Обновление списка игроков");
+
+            if (InvokeRequired)
+            {
+                Invoke(new Action(UpdatePlayersList));
+                return;
+            }
+
             _playersListBox.Items.Clear();
 
+            if (_players?.Any() != true)
+            {
+                Logger.Warn("Список игроков пуст при обновлении");
+                _playersListBox.Items.Add("Нет игроков");
+                return;
+            }
+
             var sortedPlayers = _players.OrderByDescending(p => p.Score).ToList();
+            Logger.Debug($"Обновление списка для {sortedPlayers.Count} игроков");
 
             for (int i = 0; i < sortedPlayers.Count; i++)
             {
                 var player = sortedPlayers[i];
-                string position = i == 0 ? "1" : i == 1 ? "2" : i == 2 ? "3" : $"{i + 1}.";
+                string position = i == 0 ? "🥇" : i == 1 ? "🥈" : i == 2 ? "🥉" : $"{i + 1}.";
                 string playerInfo = $"{position} {player.Username}";
 
-                if (player.Id == _currentPlayer.Id)
+                if (player.Id == _currentPlayer?.Id)
                 {
-                    playerInfo += "вы";
+                    playerInfo += " (вы)";
                 }
 
-                playerInfo += $"{player.Score} очков";
-                playerInfo += $"Побед: {player.Wins}/{player.TotalGames}";
+                playerInfo += $" - {player.Score} очков";
 
                 _playersListBox.Items.Add(playerInfo);
+                Logger.Debug($"Обновлен игрок: {playerInfo}");
             }
         }
+
+
 
         private void UpdateGameStatus(string message, Color color)
         {

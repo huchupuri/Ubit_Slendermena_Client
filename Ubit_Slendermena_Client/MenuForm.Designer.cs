@@ -2,30 +2,17 @@
 {
     partial class MenuForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
-            {
                 components.Dispose();
-            }
             base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MenuForm));
@@ -34,6 +21,7 @@
             LocalizationBtn = new Button();
             ExitBtn = new Button();
             titleLbl = new Label();
+            LanguageComboBox = new ComboBox();
             SuspendLayout();
             // 
             // PlayBtn
@@ -41,6 +29,7 @@
             resources.ApplyResources(PlayBtn, "PlayBtn");
             PlayBtn.BackColor = Color.Yellow;
             PlayBtn.Name = "PlayBtn";
+            PlayBtn.Text = Properties.MenuForm.Resources.PlayButton;
             PlayBtn.UseVisualStyleBackColor = false;
             PlayBtn.Click += PlayBtn_Click;
             // 
@@ -49,6 +38,7 @@
             resources.ApplyResources(ProfileBtn, "ProfileBtn");
             ProfileBtn.BackColor = Color.Yellow;
             ProfileBtn.Name = "ProfileBtn";
+            ProfileBtn.Text = Properties.MenuForm.Resources.ProfileButton;
             ProfileBtn.UseVisualStyleBackColor = false;
             ProfileBtn.Click += ProfileBtn_Click;
             // 
@@ -57,13 +47,16 @@
             resources.ApplyResources(LocalizationBtn, "LocalizationBtn");
             LocalizationBtn.BackColor = Color.Yellow;
             LocalizationBtn.Name = "LocalizationBtn";
+            LocalizationBtn.Text = Properties.MenuForm.Resources.LocalizationButton;
             LocalizationBtn.UseVisualStyleBackColor = false;
+            LocalizationBtn.Click += LocalizationBtn_Click;
             // 
             // ExitBtn
             // 
             resources.ApplyResources(ExitBtn, "ExitBtn");
             ExitBtn.BackColor = Color.Yellow;
             ExitBtn.Name = "ExitBtn";
+            ExitBtn.Text = Properties.MenuForm.Resources.ExitButton;
             ExitBtn.UseVisualStyleBackColor = false;
             // 
             // titleLbl
@@ -73,11 +66,19 @@
             titleLbl.ForeColor = Color.Red;
             titleLbl.Name = "titleLbl";
             // 
+            // LanguageComboBox
+            // 
+            resources.ApplyResources(LanguageComboBox, "LanguageComboBox");
+            LanguageComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            LanguageComboBox.FormattingEnabled = true;
+            LanguageComboBox.Name = "LanguageComboBox";
+            // 
             // MenuForm
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImage = Properties.Resource.menufback;
+            Controls.Add(LanguageComboBox);
             Controls.Add(titleLbl);
             Controls.Add(ExitBtn);
             Controls.Add(LocalizationBtn);
@@ -95,5 +96,6 @@
         private Button LocalizationBtn;
         private Button ExitBtn;
         private Label titleLbl;
+        private ComboBox LanguageComboBox;
     }
 }

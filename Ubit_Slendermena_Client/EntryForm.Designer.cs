@@ -1,33 +1,23 @@
 ﻿using Ubit_Slendermena_Client.Technical;
 using GameClient.Network;
+using System.Globalization;
+using System.Threading;
+
 namespace Ubit_Slendermena_Client
 {
     partial class EntryForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
-            {
                 components.Dispose();
-            }
             base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             AuthorizationTxt = new TextBox();
@@ -36,26 +26,31 @@ namespace Ubit_Slendermena_Client
             btnConnect = new RoundButton();
             btnAddRoom = new RoundButton();
             GameTitleLabel = new Label();
+            LanguageComboBox = new ComboBox();
+
             SuspendLayout();
+
             // 
             // AuthorizationTxt
             // 
             AuthorizationTxt.Font = new Font("Segoe UI", 12F);
             AuthorizationTxt.Location = new Point(196, 205);
             AuthorizationTxt.Name = "AuthorizationTxt";
-            AuthorizationTxt.PlaceholderText = "логин";
+            AuthorizationTxt.PlaceholderText = Properties.Resources.LoginPlaceholder;
             AuthorizationTxt.Size = new Size(444, 34);
             AuthorizationTxt.TabIndex = 5;
+
             // 
             // PassswordTxt
             // 
             PassswordTxt.Font = new Font("Segoe UI", 12F);
             PassswordTxt.Location = new Point(196, 274);
             PassswordTxt.Name = "PassswordTxt";
-            PassswordTxt.PlaceholderText = "пароль";
+            PassswordTxt.PlaceholderText = Properties.Resources.PasswordPlaceholder;
             PassswordTxt.Size = new Size(444, 34);
             PassswordTxt.TabIndex = 4;
             PassswordTxt.UseSystemPasswordChar = true;
+
             // 
             // AuthorizationLabel
             // 
@@ -66,7 +61,8 @@ namespace Ubit_Slendermena_Client
             AuthorizationLabel.Name = "AuthorizationLabel";
             AuthorizationLabel.Size = new Size(210, 48);
             AuthorizationLabel.TabIndex = 3;
-            AuthorizationLabel.Text = "Авторизация";
+            AuthorizationLabel.Text = Properties.Resources.LoginLabel;
+
             // 
             // btnConnect
             // 
@@ -84,9 +80,10 @@ namespace Ubit_Slendermena_Client
             btnConnect.PressDepth = 0.15F;
             btnConnect.Size = new Size(200, 46);
             btnConnect.TabIndex = 1;
-            btnConnect.Text = "ВОЙТИ";
+            btnConnect.Text = Properties.Resources.LoginButton;
             btnConnect.UseVisualStyleBackColor = false;
             btnConnect.Click += btnConnect_Click;
+
             // 
             // btnAddRoom
             // 
@@ -104,9 +101,10 @@ namespace Ubit_Slendermena_Client
             btnAddRoom.PressDepth = 0.15F;
             btnAddRoom.Size = new Size(200, 46);
             btnAddRoom.TabIndex = 2;
-            btnAddRoom.Text = "ЗАРЕГИСТРИРОВАТЬСЯ";
+            btnAddRoom.Text = Properties.Resources.RegisterButton;
             btnAddRoom.UseVisualStyleBackColor = false;
             btnAddRoom.Click += btnAddRoom_Click;
+
             // 
             // GameTitleLabel
             // 
@@ -118,7 +116,21 @@ namespace Ubit_Slendermena_Client
             GameTitleLabel.Name = "GameTitleLabel";
             GameTitleLabel.Size = new Size(444, 55);
             GameTitleLabel.TabIndex = 0;
-            GameTitleLabel.Text = "СВОЯ СВОЯ ИГРА";
+            GameTitleLabel.Text = Properties.Resources.GameTitle;
+
+            // 
+            // LanguageComboBox
+            // 
+            LanguageComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            LanguageComboBox.Font = new Font("Segoe UI", 10F);
+            LanguageComboBox.Items.AddRange(new object[] { "English", "Русский" });
+            LanguageComboBox.SelectedIndex = Thread.CurrentThread.CurrentUICulture.Name.StartsWith("ru") ? 1 : 0;
+            LanguageComboBox.Location = new Point(650, 12);
+            LanguageComboBox.Name = "LanguageComboBox";
+            LanguageComboBox.Size = new Size(120, 30);
+            LanguageComboBox.TabIndex = 6;
+            LanguageComboBox.SelectedIndexChanged += LanguageComboBox_SelectedIndexChanged;
+
             // 
             // EntryForm
             // 
@@ -127,6 +139,7 @@ namespace Ubit_Slendermena_Client
             BackgroundImage = Properties.Resource.AuthorizationBackground;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(788, 487);
+            Controls.Add(LanguageComboBox);
             Controls.Add(GameTitleLabel);
             Controls.Add(btnConnect);
             Controls.Add(btnAddRoom);
@@ -147,6 +160,6 @@ namespace Ubit_Slendermena_Client
         private RoundButton btnConnect;
         private RoundButton btnAddRoom;
         private Label GameTitleLabel;
-
+        private ComboBox LanguageComboBox;
     }
 }

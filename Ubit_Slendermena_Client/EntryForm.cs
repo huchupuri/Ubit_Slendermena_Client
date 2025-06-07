@@ -2,6 +2,7 @@
 using GameClient.Network;
 using NLog;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -337,6 +338,16 @@ namespace Ubit_Slendermena_Client
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 EnableButtons();
             }
+        }
+        private void LanguageComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedLang = LanguageComboBox.SelectedItem.ToString();
+            string culture = selectedLang == "Русский" ? "ru" : "en";
+
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(culture);
+            Controls.Clear();
+            InitializeComponent();
+            LanguageComboBox.SelectedItem = selectedLang; // сохранить выбор
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

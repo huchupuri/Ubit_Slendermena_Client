@@ -11,7 +11,6 @@ namespace GameClient.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
     }
-    // Модели для загрузки файла с вопросами
     public class QuestionFile
     {
         public List<CategoryFile> Categories { get; set; } = new();

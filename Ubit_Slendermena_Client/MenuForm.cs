@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -70,7 +71,7 @@ namespace Ubit_Slendermena_Client
         private void HandleGameStarted()
         {
             Logger.Info("Переход к форме создания новой игры");
-            var gameForm = new NewGame(_player, _client);
+            var gameForm = new NewGame(_player, _client, culture);
             UnsubscribeFromClientEvents();
             this.Hide();
             gameForm.ShowDialog();
@@ -124,6 +125,16 @@ namespace Ubit_Slendermena_Client
                 Application.Exit();
             }
         }
+        private void LanguageComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedLang = LanguageComboBox.SelectedItem.ToString();
+            string culture = selectedLang == "Русский" ? "ru" : "en";
+
+            Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(culture);
+            Controls.Clear();
+            InitializeComponent();
+            LanguageComboBox.SelectedItem = selectedLang; // восстановить выбор
+        }
 
         private void ProfileBtn_Click(object sender, EventArgs e)
         {
@@ -151,10 +162,22 @@ namespace Ubit_Slendermena_Client
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        CultureInfo culture;
         private void LocalizationBtn_Click(object sender, EventArgs e)
         {
+            using var langForm = new LanguageSelectionForm();
+            if (langForm.ShowDialog() == DialogResult.OK)
+            {
+                culture = new CultureInfo(langForm.SelectedLanguageCode);
+                Thread.CurrentThread.CurrentUICulture = culture;
+                Thread.CurrentThread.CurrentCulture = culture;
+
+                // Перезапуск формы
+                Controls.Clear();
+                InitializeComponent();
+            }
         }
+
 
         private async void PlayBtn_Click(object sender, EventArgs e)
         {
@@ -173,7 +196,7 @@ namespace Ubit_Slendermena_Client
                 }
 
                 Logger.Debug("Открытие формы создания новой игры");
-                var newGameForm = new NewGame(_player, _client);
+                var newGameForm = new NewGame(_player, _client, culture);
                 UnsubscribeFromClientEvents();
                 this.Hide();
                 newGameForm.ShowDialog();

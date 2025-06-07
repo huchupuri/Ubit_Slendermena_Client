@@ -1,6 +1,7 @@
 ﻿using GameClient.Models;
 using NLog;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -17,17 +18,18 @@ namespace Ubit_Slendermena_Client
         private bool _isHost = false;
         private int _requiredPlayers = 0;
         private int _currentPlayers = 0;
-        private QuestionFile _customQuestions = null; 
-
-        public NewGame(Player player, GameClient.Network.GameClient client)
+        private QuestionFile _customQuestions = null;
+        private CultureInfo culture;
+        public NewGame(Player player, GameClient.Network.GameClient client, CultureInfo culture)
         {
             Logger.Info($"Инициализация NewGame для игрока: {player?.Username}");
-
+            
             InitializeComponent();
             _player = player;
             _networkClient = client;
             SubscribeToEvents();
             UpdateUI();
+            this.culture = culture;
 
             Logger.Debug($"NewGame создана для игрока ID={player?.Id}");
         }
@@ -233,11 +235,11 @@ namespace Ubit_Slendermena_Client
             }
         }
 
-        private void OpenGameForm()
+        private void OpenGameForm(List<Player> players)
         {
             Logger.Info("Переход к JeopardyGameForm");
             UnsubscribeFromEvents();
-            var gameForm = new JeopardyGameForm(_player, _networkClient);
+            var gameForm = new JeopardyGameForm(_player, _networkClient, players);
             gameForm.Show();
         }
 
@@ -324,7 +326,10 @@ namespace Ubit_Slendermena_Client
 
                     case "GameStarted":
                         Logger.Info("Получено уведомление о начале игры");
-                        OpenGameForm();
+
+                        MessageBox.Show($"{message.Players[0].Username}", "Ошибка",
+    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        OpenGameForm(message.Players);
                         break;
 
                     case "GameFull":

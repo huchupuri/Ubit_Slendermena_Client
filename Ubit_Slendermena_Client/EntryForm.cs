@@ -79,9 +79,6 @@ namespace Ubit_Slendermena_Client
                     Score = message.TotalScore,
                     Wins = message.Wins
                 };
-
-                Logger.Debug($"Создан объект игрока: ID={player.Id}, Username={player.Username}, Games={player.TotalGames}, Wins={player.Wins}");
-
                 UnsubscribeFromEvents();
                 var menuForm = new MenuForm(player, _client);
 
@@ -92,7 +89,7 @@ namespace Ubit_Slendermena_Client
             catch (Exception ex)
             {
                 Logger.Error(ex, "Ошибка при переходе в меню");
-                MessageBox.Show($"Ошибка при переходе в меню: {ex.Message}", "Ошибка",
+                MessageBox.Show($"{ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -133,14 +130,10 @@ namespace Ubit_Slendermena_Client
                         break;
 
                     case "Error":
-                        Logger.Warn($"Получена ошибка от сервера: {serverMessage.Message}");
+                        Logger.Warn($"ошибка: {serverMessage.Message}");
                         MessageBox.Show($"Ошибка: {serverMessage.Message}", "Ошибка",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         EnableButtons();
-                        break;
-
-                    default:
-                        Logger.Warn($"Получено неизвестное сообщение: {serverMessage.Type}");
                         break;
                 }
             }
@@ -172,20 +165,7 @@ namespace Ubit_Slendermena_Client
 
         private void OnErrorOccurred(object sender, Exception ex)
         {
-            if (InvokeRequired)
-            {
-                Invoke(new Action<object, Exception>(OnErrorOccurred), sender, ex);
-                return;
-            }
-
-            Logger.Error(ex, "Произошла ошибка соединения");
-            _connected = false;
-            _isConnecting = false;
-
-            MessageBox.Show($"Произошла ошибка: {ex.Message}", "Ошибка",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-            EnableButtons();
+            
         }
 
         private void EnableButtons()
@@ -271,8 +251,6 @@ namespace Ubit_Slendermena_Client
             }
 
             Logger.Info("Начало процесса регистрации");
-
-            // Валидация входных данных
             if (string.IsNullOrWhiteSpace(AuthorizationTxt.Text))
             {
                 Logger.Warn("Попытка регистрации с пустым именем пользователя");
@@ -347,7 +325,7 @@ namespace Ubit_Slendermena_Client
             Thread.CurrentThread.CurrentUICulture = new CultureInfo(culture);
             Controls.Clear();
             InitializeComponent();
-            LanguageComboBox.SelectedItem = selectedLang; // сохранить выбор
+            LanguageComboBox.SelectedItem = selectedLang; 
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

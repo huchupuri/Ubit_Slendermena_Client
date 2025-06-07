@@ -43,7 +43,6 @@ namespace Ubit_Slendermena_Client
         {
             if (_player != null)
             {
-                this.Text = $"Главное меню - {_player.Username} (Побед: {_player.Wins}/{_player.TotalGames})";
                 Logger.Debug($"Обновлена информация о игроке в заголовке: {_player.Username}");
             }
         }
@@ -85,7 +84,6 @@ namespace Ubit_Slendermena_Client
                 Invoke(new Action<object, string>(OnConnectionClosed), sender, reason);
                 return;
             }
-
             Logger.Warn($"Соединение с сервером потеряно в MenuForm: {reason}");
             MessageBox.Show($"Соединение с сервером потеряно: {reason}", "Соединение потеряно",
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -99,7 +97,6 @@ namespace Ubit_Slendermena_Client
                 Invoke(new Action<object, Exception>(OnErrorOccurred), sender, ex);
                 return;
             }
-
             Logger.Error(ex, "Произошла ошибка в MenuForm");
             MessageBox.Show($"Произошла ошибка: {ex.Message}", "Ошибка",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -125,20 +122,10 @@ namespace Ubit_Slendermena_Client
                 Application.Exit();
             }
         }
-        private void LanguageComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string selectedLang = LanguageComboBox.SelectedItem.ToString();
-            string culture = selectedLang == "Русский" ? "ru" : "en";
-
-            Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(culture);
-            Controls.Clear();
-            InitializeComponent();
-            LanguageComboBox.SelectedItem = selectedLang; // восстановить выбор
-        }
 
         private void ProfileBtn_Click(object sender, EventArgs e)
         {
-            Logger.Info($"Открытие профиля игрока: {_player?.Username}");
+            Logger.Info($"Открытие профиля игрока: {_player.Username}");
             
             try
             {
@@ -147,7 +134,6 @@ namespace Ubit_Slendermena_Client
                 
                 if (result == DialogResult.OK)
                 {
-                    Logger.Info("Пользователь вышел из аккаунта через профиль");
                     this.Close();
                 }
                 else
@@ -171,8 +157,6 @@ namespace Ubit_Slendermena_Client
                 culture = new CultureInfo(langForm.SelectedLanguageCode);
                 Thread.CurrentThread.CurrentUICulture = culture;
                 Thread.CurrentThread.CurrentCulture = culture;
-
-                // Перезапуск формы
                 Controls.Clear();
                 InitializeComponent();
             }
@@ -208,17 +192,11 @@ namespace Ubit_Slendermena_Client
                 MessageBox.Show($"Ошибка при создании игры: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            finally
-            {
-                PlayBtn.Enabled = true;
-                PlayBtn.Text = "Играть";
-                Logger.Debug("Состояние кнопки 'Играть' восстановлено");
-            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            Logger.Info($"Закрытие MenuForm для игрока: {_player?.Username}");
+            Logger.Info($"Закрытие MenuForm");
             UnsubscribeFromClientEvents();
 
             _client.DisconnectAsync().Wait(1000);

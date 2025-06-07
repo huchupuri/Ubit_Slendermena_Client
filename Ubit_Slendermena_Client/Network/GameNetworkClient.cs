@@ -24,7 +24,7 @@ namespace GameClient.Network
         {
             _serverUrl = serverUrl;
             _cts = new CancellationTokenSource();
-            Logger.Info($"GameClient создан");
+            Logger.Info("GameClient создан");
         }
 
         public async Task ConnectAsync()
@@ -159,15 +159,6 @@ namespace GameClient.Network
         }
         public async Task CreateGameAsync(int playerCount, string hostName, QuestionFile customQuestions = null)
         {
-            if (customQuestions != null)
-            {
-                Logger.Info($"Создание игры на {playerCount} игроков, хост: {hostName} с пользовательскими вопросами ({customQuestions.Categories.Count} категорий)");
-            }
-            else
-            {
-                Logger.Info($"Создание игры на {playerCount} игроков, хост: {hostName} со стандартными вопросами");
-            }
-
             var message = new
             {
                 Type = "CreateGame",
@@ -187,27 +178,8 @@ namespace GameClient.Network
                 playerName = playerName
             });
         }
-        public async Task SelectQuestionAsync(int categoryId)
-        {
-            Logger.Debug($"Выбор вопроса из категории: {categoryId}");
-            await SendMessageAsync(new
-            {
-                Type = "SelectQuestion",
-                CategoryId = categoryId
-            });
-        }
 
-        public async Task SubmitAnswerAsync(int questionId, string answer)
-        {
-            Logger.Info($"Отправка ответа на вопрос {questionId}: {answer}");
-            await SendMessageAsync(new
-            {
-                Type = "Answer",
-                QuestionId = questionId,
-                Answer = answer
-            });
-        }
-
+        
         public async Task DisconnectAsync()
         {
             Logger.Info("Отключение от сервера");
@@ -232,7 +204,6 @@ namespace GameClient.Network
 
         public void Dispose()
         {
-            Logger.Debug("Освобождение ресурсов GameClient");
             _cts?.Cancel(); 
             _webSocket?.Dispose();
             _cts?.Dispose();

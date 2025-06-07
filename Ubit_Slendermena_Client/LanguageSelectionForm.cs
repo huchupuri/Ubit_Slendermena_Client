@@ -7,7 +7,7 @@ namespace Ubit_Slendermena_Client
 {
     public partial class LanguageSelectionForm : Form
     {
-        public string SelectedLanguageCode { get; private set; } = "en"; // default
+        public string SelectedLanguageCode { get; private set; } = "en"; 
 
         public LanguageSelectionForm()
         {

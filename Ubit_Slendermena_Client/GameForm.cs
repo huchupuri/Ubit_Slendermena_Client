@@ -152,7 +152,7 @@ namespace Ubit_Slendermena_Client
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Ошибка обработки сообщения от сервера в JeopardyGameForm");
+                Logger.Error(ex, "Ошибка jgf");
                 MessageBox.Show($"Ошибка обработки сообщения: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -172,7 +172,7 @@ namespace Ubit_Slendermena_Client
                         CategoryId = serverMessage.Question.CategoryId,
                         CategoryName = serverMessage.Question.CategoryName
                     };
-                    var btn = _gameButtons[question.CategoryId-1, question.Id - 6* question.CategoryId + 6]; // [i, 0] — это заголовок категории
+                    var btn = _gameButtons[question.CategoryId-1, question.Id - 6* question.CategoryId + 6]; 
                     if (btn != null)
                     {
                         btn.Enabled = false;
@@ -216,8 +216,6 @@ namespace Ubit_Slendermena_Client
             {
                 _categories = message.Categories;
                 Logger.Info($"Загружено {_categories.Count} категорий");
-
-                // Обновляем заголовки категорий
                 for (int i = 0; i < Math.Min(_categories.Count, 6); i++)
                 {
                     if (_gameButtons[i, 0] != null)
@@ -227,13 +225,9 @@ namespace Ubit_Slendermena_Client
                     }
                 }
             }
-
-            // ИСПРАВЛЕНИЕ: Правильная обработка списка игроков
             if (message.Players?.Any() == true)
             {
                 Logger.Info($"Получен список игроков от сервера: {message.Players.Count}");
-
-                // Обновляем локальный список игроков
                 _players.Clear();
                 foreach (var serverPlayer in message.Players)
                 {
@@ -253,8 +247,6 @@ namespace Ubit_Slendermena_Client
             {
                 Logger.Warn("Сервер не прислал список игроков или список пуст");
             }
-
-            UpdateGameStatus("Игра началась! Выберите вопрос.", Color.Green);
         }
 
         private void HandleAnswerResult(ServerMessage message)
@@ -264,13 +256,12 @@ namespace Ubit_Slendermena_Client
 
             if (message.IsCorrect)
             {
-                UpdateGameStatus($"✅ {playerName} ответил правильно! (+{_currentQuestion?.Price} очков)", Color.Green);
+                UpdateGameStatus($"✅ {playerName} ответил правильно", Color.Green);
             }
             else
             {
                 UpdateGameStatus($"❌ {playerName} ответил неправильно (-{_currentQuestion?.Price} очков)", Color.Red);
             }
-
             var player = _players.FirstOrDefault(p => p.Id == message.Id);
             if (player != null)
             {
@@ -296,6 +287,7 @@ namespace Ubit_Slendermena_Client
 
             if (_currentQuestion != null)
             {
+                //поиск индексов
                 int categoryIndex = _categories.FindIndex(c => c.Name == _currentQuestion.CategoryName);
                 int questionIndex = (_currentQuestion.Price / 100) - 1;
 
@@ -318,7 +310,7 @@ namespace Ubit_Slendermena_Client
         private void HandleQuestionTimeout(ServerMessage message)
         {
             Logger.Warn($"Время на вопрос истекло. Правильный ответ: {message.CorrectAnswer}");
-            UpdateGameStatus($"⏰ Время вышло! Правильный ответ: {message.CorrectAnswer}", Color.Red);
+            UpdateGameStatus($"Время вышло! Правильный ответ: {message.CorrectAnswer}", Color.Red);
         }
 
         private void HandleGameOver(ServerMessage message)
@@ -327,12 +319,10 @@ namespace Ubit_Slendermena_Client
             Logger.Info($"Игра завершена. Победитель: {winnerName}");
 
             string winnerText = message.Winner != null
-                ? $"🏆 Победитель: {message.Winner.Username}!"
+                ? $"Победитель: {message.Winner.Username}!"
                 : "🎮 Игра окончена!";
 
             UpdateGameStatus($"🎊 Игра завершена! {winnerText}", Color.Purple);
-
-            // Показываем результаты
             if (message.Players?.Any() == true)
             {
                 _players = message.Players;
@@ -343,12 +333,12 @@ namespace Ubit_Slendermena_Client
                 for (int i = 0; i < sortedPlayers.Count; i++)
                 {
                     var player = sortedPlayers[i];
-                    string medal = i == 0 ? "🥇" : i == 1 ? "🥈" : i == 2 ? "🥉" : "🏅";
+                    string medal = i == 0 ? "1 место " : i == 1 ? "2 место " : i == 2 ? "3 место " : "участник ";
                     results += $"{medal} {i + 1}. {player.Username}: {player.Score} очков\n";
                 }
 
                 Logger.Info($"Показ итоговых результатов игры с {sortedPlayers.Count} игроками");
-                MessageBox.Show(results, "🎉 Игра завершена!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(results, "Игра завершена!", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             // Возвращаемся в меню через 5 секунд
@@ -357,7 +347,6 @@ namespace Ubit_Slendermena_Client
             exitTimer.Tick += (s, e) =>
             {
                 exitTimer.Stop();
-                Logger.Info("Автоматическое закрытие JeopardyGameForm");
                 UnsubscribeFromEvents();
                 this.Close();
             };
@@ -369,7 +358,7 @@ namespace Ubit_Slendermena_Client
             if (!_networkClient.IsConnected)
             {
                 Logger.Error("Попытка выбора вопроса без соединения с сервером");
-                MessageBox.Show("Нет соединения с сервером!", "Ошибка",
+                MessageBox.Show("Нет соединения с сервером", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -387,38 +376,18 @@ namespace Ubit_Slendermena_Client
             int questionIndex = tag.QuestionIndex;
 
             Logger.Info($"Выбран вопрос: категория {categoryIndex}, вопрос {questionIndex}");
+            int categoryId = categoryIndex + 1;
 
-            if (_answeredQuestions[categoryIndex, questionIndex])
+            Logger.Debug($"Отправка запроса на выбор вопроса");
+            await _networkClient.SendMessageAsync(new
             {
-                Logger.Warn($"Попытка выбора уже отвеченного вопроса: категория {categoryIndex}, вопрос {questionIndex}");
-                UpdateGameStatus("❌ Этот вопрос уже был отвечен!", Color.Red);
-                return;
-            }
+                Type = "SelectQuestion",
+                QuestionId = questionIndex + 1,
+                CategoryId = categoryIndex + 1,
+                PlayerId = _currentPlayer.Id
+            });
 
-            try
-            {
-                int categoryId = categoryIndex + 1;
-
-                Logger.Debug($"Отправка запроса на выбор вопроса: CategoryId={categoryId}, PlayerId={_currentPlayer.Id}");
-                await _networkClient.SendMessageAsync(new
-                {
-                    Type = "SelectQuestion",
-                    QuestionId = questionIndex+1,
-                    CategoryId = categoryIndex+1,
-                    PlayerId = _currentPlayer.Id
-                });
-
-                UpdateGameStatus("Вопрос выбран, ожидание от сервера...", Color.Orange);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, $"Ошибка при отправке запроса на выбор вопроса: категория {categoryIndex}, вопрос {questionIndex}");
-                UpdateGameStatus($"❌ Ошибка отправки: {ex.Message}", Color.Red);
-
-                button.Enabled = true;
-                button.BackColor = Color.Blue;
-                button.Text = $"{(questionIndex + 1) * 100}";
-            }
+            UpdateGameStatus("Вопрос выбран, ожидание от сервера...", Color.Orange);
         }
 
         private void UpdatePlayersList()
@@ -441,18 +410,11 @@ namespace Ubit_Slendermena_Client
             }
 
             var sortedPlayers = _players.OrderByDescending(p => p.Score).ToList();
-            Logger.Debug($"Обновление списка для {sortedPlayers.Count} игроков");
-
             for (int i = 0; i < sortedPlayers.Count; i++)
             {
                 var player = sortedPlayers[i];
-                string position = i == 0 ? "🥇" : i == 1 ? "🥈" : i == 2 ? "🥉" : $"{i + 1}.";
+                string position = i == 0 ? "1 " : i == 1 ? "2 " : i == 2 ? "3 " : $"{i + 1}.";
                 string playerInfo = $"{position} {player.Username}";
-
-                if (player.Id == _currentPlayer?.Id)
-                {
-                    playerInfo += " (вы)";
-                }
 
                 playerInfo += $" - {player.Score} очков";
 
@@ -465,7 +427,6 @@ namespace Ubit_Slendermena_Client
 
         private void UpdateGameStatus(string message, Color color)
         {
-            Logger.Debug($"Обновление статуса игры: {message}");
             if (_gameStatusLabel != null)
             {
                 _gameStatusLabel.Text = message;
@@ -498,7 +459,7 @@ namespace Ubit_Slendermena_Client
             }
 
             Logger.Error(ex, "Ошибка соединения в JeopardyGameForm");
-            UpdateGameStatus($"❌ Ошибка соединения: {ex.Message}", Color.Red);
+            UpdateGameStatus($"Ошибка соединения: {ex.Message}", Color.Red);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

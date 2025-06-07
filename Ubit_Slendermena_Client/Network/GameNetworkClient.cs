@@ -8,6 +8,7 @@ namespace GameClient.Network
 {
     public class GameClient
     {
+
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public ClientWebSocket _webSocket;
         private readonly string _serverUrl;
